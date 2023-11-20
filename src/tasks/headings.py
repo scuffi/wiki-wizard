@@ -6,10 +6,7 @@ from pathlib import Path
 
 from console import monitor
 from models import Topic
-
-
-gpt35 = "gpt-3.5-turbo"
-gpt4 = "gpt-4-1106-preview"
+from config import GPT4
 
 
 def parse_response_to_topics(response: str):
@@ -36,7 +33,7 @@ def generate_headings(topic: str) -> list[Topic]:
     # ! Temporary -> read from file instead of query GPT in development
     return parse_response_to_topics(Path("gpt4_headings.txt").read_text())
 
-    llm = ChatOpenAI(model=gpt4, temperature=0.6)
+    llm = ChatOpenAI(model=GPT4, temperature=0.6)
 
     return parse_response_to_topics(
         llm(chat_template.format_messages(text=topic)).content
