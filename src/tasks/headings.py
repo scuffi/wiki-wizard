@@ -1,16 +1,26 @@
+import re
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
+from pathlib import Path
 
 from console import monitor
+from models import Topic
 
 
 gpt35 = "gpt-3.5-turbo"
 gpt4 = "gpt-4-1106-preview"
 
 
+def parse_response_to_topics(response: str):
+    pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
+    matches = pattern.findall(response)
+
+    return [Topic(index=match[0], title=match[2].strip()) for match in matches]
+
+
 @monitor("[bold green]Generating headings...")
-def generate_headings(topic: str):
+def generate_headings(topic: str) -> list[Topic]:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
@@ -23,6 +33,11 @@ def generate_headings(topic: str):
         ]
     )
 
+    # ! Temporary -> read from file instead of query GPT in development
+    return parse_response_to_topics(Path("gpt4_headings.txt").read_text())
+
     llm = ChatOpenAI(model=gpt4, temperature=0.6)
 
-    return llm(chat_template.format_messages(text=topic))
+    return parse_response_to_topics(
+        llm(chat_template.format_messages(text=topic)).content
+    )

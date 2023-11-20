@@ -5,4 +5,4 @@ load_dotenv()
 
 
 # * Project start
-print(headings.generate_headings("Toothpaste").content)
+print(headings.generate_headings("Toothpaste"))
