@@ -12,12 +12,7 @@ class AutoGen:
             [
                 {"model": GPT35, "api_key": os.environ["OPENAI_API_KEY"]},
             ]
-        ),
-        filter_dict={
-            "model": {
-                GPT35,
-            }
-        },
+        )
     )
 
     CONFIG_LIST_GPT4 = autogen.config_list_from_json(
@@ -25,10 +20,5 @@ class AutoGen:
             [
                 {"model": GPT4, "api_key": os.environ["OPENAI_API_KEY"]},
             ]
-        ),
-        filter_dict={
-            "model": {
-                GPT4,
-            }
-        },
+        )
     )

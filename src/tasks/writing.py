@@ -1,28 +1,50 @@
 import autogen
 
 from config import AutoGen
+from console import monitor
 
 llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42}
 llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42}
-user_proxy = autogen.UserProxyAgent(
-    name="User_proxy", system_message="A human admin.", human_input_mode="TERMINATE"
-)
-writer = autogen.AssistantAgent(
-    name="Writer",
-    system_message="Writer. Your only goal is to provide high quality, detailed information on the topic given to you. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research.",
-    llm_config=llm_config_gpt3,
-)
-researcher = autogen.AssistantAgent(
-    name="Researcher",
-    system_message="Researcher. Your only goal is to provide high quality, detailed information on the topic given to you. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research.",
-    llm_config=llm_config_gpt3,
-)
-qa = autogen.AssistantAgent(
-    name="Quality_assurance",
-    system_message="Quality_assurance. You must provide quality assurance on any sets of information from the Researcher. Your goal is to ensure that information is high quality, detailed and accurate. You must also ensure that the research goes into depth enough. You must provide simple comments that will help the Researcher improve their researched information. If the information meets your requirements, you should inform the Project_manager that the information is complete and to move on. If the information is not good quality, you should inform the Researcher with the required changes.",
-    llm_config=llm_config_gpt3,
-)
-groupchat = autogen.GroupChat(
-    agents=[user_proxy, researcher], messages=[], max_round=12
-)
-manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config_gpt3)
+
+
+@monitor("[bold green]Writing section...")
+def write_section():
+    researcher = autogen.AssistantAgent(
+        name="Researcher",
+        system_message="Research Assistant. Your only goal is to provide high quality, detailed information on the topic given to you. If you are given improvements, you must use those comments to improve your previous response, do not write a new answer, it must be the previous answer incorporating the changes. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research.",
+        llm_config=llm_config_gpt4,
+    )
+    qa = autogen.AssistantAgent(
+        name="Quality_Assurer",
+        system_message="Quality Assurer. You are a quality assurer and should critique, comment and suggest tweaks to a given set of information and return the comments to the Researcher. You should always try to find improvements in a message. You will recieve information from a research agent, and it is your job to ensure that research is up to a high standard. You should help the researcher make more enformed writing choices in your comments. You should advise the researcher on different topics to go into depth into, add examples, and anything else that could improve the quality, accuracy and depth of a given block of information. You should not write or edit the information yourself, only provide high quality and accurate comments. If the message meets the given requirements, do not add any comments or anything else to your response, only reply with ONLY the word: 'TERMINATE'",
+        llm_config=llm_config_gpt4,
+    )
+
+    message = """
+    Write an informational knowledge piece on the topic '{objective}'. You are writing for a larger knowledgebase with the title: 'Toothpaste'.
+    Your section context is:
+    `6: Consumer Choices and Trends
+    6.1: Brand Selection
+        6.1.1: Market Leaders
+        6.1.2: Niche Brands and Products
+    6.2: Price Points and Accessibility
+        6.2.1: Premium vs. Budget-Friendly Options
+        6.2.2: Global Availability and Local Preferences
+    6.3: Marketing and Advertising Strategies
+        6.3.1: Target Demographics
+        6.3.2: Claims and Endorsements
+        6.3.3: Social Media and Influencer Marketing`
+    Only write about section {objective}, you can refer to other sections, but they are only for context, all information you write should align with the {objective}
+    """.format(
+        objective="6.1.1: Market Leaders"
+    )
+
+    qa.initiate_chat(
+        researcher,
+        message=message,
+    )
+
+    return researcher.last_message()
+
+
+# type exit to terminate the chat
