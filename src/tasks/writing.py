@@ -1,10 +1,10 @@
 import autogen
 
-from config import AutoGen
+from config import AutoGen, GPT35, GPT4
 from console import monitor
 
-llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42}
-llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42}
+llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42, "model": GPT35}
+llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42, "model": GPT4}
 
 
 @monitor("[bold green]Writing section...")
@@ -39,12 +39,14 @@ def write_section():
         objective="6.1.1: Market Leaders"
     )
 
+    print(researcher.llm_config)
+
     qa.initiate_chat(
         researcher,
         message=message,
     )
 
-    return researcher.last_message()
+    return researcher.chat_messages[researcher]
 
 
 # type exit to terminate the chat
