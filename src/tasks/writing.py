@@ -9,6 +9,7 @@ llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42, "model":
 
 @monitor("[bold green]Writing section...")
 def write_section():
+    # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
         system_message="Research Assistant. Your only goal is to provide high quality, detailed information on the topic given to you. If you are given improvements, you must use those comments to improve your previous response, do not write a new answer, it must be the previous answer incorporating the changes. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research.",
@@ -46,7 +47,7 @@ def write_section():
         message=message,
     )
 
-    return qa.chat_messages[researcher][1]['content']
+    return qa.chat_messages[researcher][1]["content"]
 
 
 # type exit to terminate the chat
