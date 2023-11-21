@@ -46,7 +46,7 @@ def write_section():
         message=message,
     )
 
-    return researcher.chat_messages[researcher]
+    return qa.chat_messages[researcher][1]['content']
 
 
 # type exit to terminate the chat

@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from rich.console import Console
+from rich.markdown import Markdown
 
 from tasks import writing
 
@@ -14,4 +15,4 @@ section = writing.write_section()
 
 print(section)
 
-# console.print(Markdown(section["content"]))
+console.print(Markdown(section))
