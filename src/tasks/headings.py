@@ -5,7 +5,7 @@ from langchain.schema.messages import SystemMessage
 from pathlib import Path
 
 from console import monitor
-from models import Topic
+from models import Section
 from config import GPT4
 
 
@@ -13,11 +13,11 @@ def parse_response_to_topics(response: str):
     pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
     matches = pattern.findall(response)
 
-    return [Topic(index=match[0], title=match[2].strip()) for match in matches]
+    return [Section(index=match[0], title=match[2].strip()) for match in matches]
 
 
 @monitor("[bold green]Generating headings...")
-def generate_headings(topic: str) -> list[Topic]:
+def generate_headings(topic: str) -> list[Section]:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(

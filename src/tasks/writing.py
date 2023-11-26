@@ -1,18 +1,19 @@
 import autogen
 
-from config import AutoGen, GPT35, GPT4
 from console import monitor
+from models import Section
+from config import AutoGen, GPT35, GPT4
 
 llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42, "model": GPT35}
 llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42, "model": GPT4}
 
 
 @monitor("[bold green]Writing section...")
-def write_section():
+def write_section(sections: list[Section], section: Section, title: str):
     # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
-        system_message="Research Assistant. Your only goal is to provide high quality, detailed information on the topic given to you. If you are given improvements, you must use those comments to improve your previous response, do not write a new answer, it must be the previous answer incorporating the changes. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research.",
+        system_message="Research Assistant. Your only goal is to provide high quality, detailed information on the topic given to you. If you are given improvements, you must use those comments to improve your previous response, do not write a new answer, it must be the previous answer incorporating the changes. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research. Do not include the title you are writing for anywhere in your response.",
         llm_config=llm_config_gpt4,
     )
     qa = autogen.AssistantAgent(
@@ -22,7 +23,7 @@ def write_section():
     )
 
     message = """
-    Write an informational knowledge piece on the topic '{objective}'. You are writing for a larger knowledgebase with the title: 'Toothpaste'.
+    Write an informational knowledge piece on the topic '{objective}'. You are writing for a larger knowledgebase with the title: '{title}'.
     Your section context is:
     `6: Consumer Choices and Trends
     6.1: Brand Selection
@@ -37,7 +38,8 @@ def write_section():
         6.3.3: Social Media and Influencer Marketing`
     Only write about section {objective}, you can refer to other sections, but they are only for context, all information you write should align with the {objective}
     """.format(
-        objective="6.1.1: Market Leaders"
+        title=title,
+        objective=f"{section.index} {section.title}",
     )
 
     print(researcher.llm_config)

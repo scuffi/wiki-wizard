@@ -3,16 +3,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from rich.console import Console
-from rich.markdown import Markdown
 
-from tasks import writing
+from tasks import headings
+from models import group_sections
 
 
 # * Project start
 console = Console()
-# print(headings.generate_headings("RabbitMQ"))
-section = writing.write_section()
+sections = headings.generate_headings("RabbitMQ")
+print(group_sections(sections))
+# section = writing.write_section()
 
-print(section)
+# print(section)
 
-console.print(Markdown(section))
+# console.print(Markdown(section))
