@@ -1,1 +1,1 @@
-from .sections import Heading, group_sections
+from .sections import Section, Heading, group_headings

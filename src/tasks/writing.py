@@ -1,7 +1,7 @@
 import autogen
 
 from console import monitor
-from models import Heading
+from models import Heading, Section
 from config import AutoGen, GPT35, GPT4
 
 llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42, "model": GPT35}
@@ -9,7 +9,7 @@ llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42, "model":
 
 
 @monitor("[bold green]Writing section...")
-def write_section(sections: list[Heading], section: Heading, title: str):
+def write_section(section: Section, heading: Heading, title: str):
     # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
@@ -23,26 +23,17 @@ def write_section(sections: list[Heading], section: Heading, title: str):
     )
 
     message = """
-    Write an informational knowledge piece on the topic '{objective}'. You are writing for a larger knowledgebase with the title: '{title}'.
+    Write an informational knowledge piece on the topic {objective}. You are writing for a larger knowledgebase with the title: '{title}'.
     Your section context is:
-    `6: Consumer Choices and Trends
-    6.1: Brand Selection
-        6.1.1: Market Leaders
-        6.1.2: Niche Brands and Products
-    6.2: Price Points and Accessibility
-        6.2.1: Premium vs. Budget-Friendly Options
-        6.2.2: Global Availability and Local Preferences
-    6.3: Marketing and Advertising Strategies
-        6.3.1: Target Demographics
-        6.3.2: Claims and Endorsements
-        6.3.3: Social Media and Influencer Marketing`
+    `
+{section}
+`
     Only write about section {objective}, you can refer to other sections, but they are only for context, all information you write should align with the {objective}
     """.format(
         title=title,
-        objective=f"{section.index} {section.title}",
+        section=section.format(),
+        objective=f"'{heading.index}: {heading.title}'",
     )
-
-    print(researcher.llm_config)
 
     qa.initiate_chat(
         researcher,
