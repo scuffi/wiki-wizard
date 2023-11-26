@@ -3,10 +3,17 @@ from itertools import groupby
 
 
 @dataclass
-class Section:
+class Heading:
     index: str
     title: str
 
 
-def group_sections(sections: list[Section]) -> list[list[Section]]:
-    return [list(section) for _, section in groupby(sections, lambda s: s.index[0])]
+@dataclass
+class Section:
+    headings: list[Heading]
+
+
+def group_sections(sections: list[Heading]) -> list[Section]:
+    return [
+        Section(list(section)) for _, section in groupby(sections, lambda s: s.index[0])
+    ]

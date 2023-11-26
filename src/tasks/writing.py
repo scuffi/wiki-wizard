@@ -1,7 +1,7 @@
 import autogen
 
 from console import monitor
-from models import Section
+from models import Heading
 from config import AutoGen, GPT35, GPT4
 
 llm_config_gpt3 = {"config_list": AutoGen.CONFIG_LIST_GPT3, "seed": 42, "model": GPT35}
@@ -9,7 +9,7 @@ llm_config_gpt4 = {"config_list": AutoGen.CONFIG_LIST_GPT4, "seed": 42, "model":
 
 
 @monitor("[bold green]Writing section...")
-def write_section(sections: list[Section], section: Section, title: str):
+def write_section(sections: list[Heading], section: Heading, title: str):
     # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
