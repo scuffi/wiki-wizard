@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from itertools import groupby
 
 
-@dataclass
+@dataclass(frozen=True)
 class Heading:
     index: str
     title: str
@@ -38,6 +38,9 @@ class Section:
             for heading in self.headings
         ]
         return "\n".join(result)
+
+    def get_writable_headings(self):
+        """This function returns the lowest in the tree of all the headings, as they are the only that are meant to be written about."""
 
 
 def group_headings(sections: list[Heading]) -> list[Section]:

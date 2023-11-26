@@ -4,20 +4,47 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
 from pathlib import Path
 
+from nutree import Tree
+
 from console import monitor
-from models import Heading
+from models import Section, Heading, group_headings
 from config import GPT4
 
 
-def parse_response_to_topics(response: str):
+def parse_response_to_sections(response: str):
     pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
     matches = pattern.findall(response)
 
-    return [Heading(index=match[0], title=match[2].strip()) for match in matches]
+    # Turn the text into groups of headings, called Sections
+    sections = group_headings(
+        [Heading(index=match[0], title=match[2].strip()) for match in matches]
+    )
+
+    # Create 'n' amount of Tree objects
+    trees = [Tree()] * len(sections)
+
+    # Iterate over everything, and add each heading to the respective tree
+    # TODO: This doesn't actually work, something wrong.
+    for i, section in enumerate(sections):
+        last_count = 0
+        last_node = None
+        for heading in section.headings:
+            dot_count = heading.index.count(".")
+            if dot_count > last_count:
+                last_node = last_node.add(heading)
+                last_count = dot_count
+                continue
+
+            last_count = dot_count
+            last_node = trees[i]
+
+            last_node.add(heading)
+
+    print(trees[0].format())
 
 
 @monitor("[bold green]Generating headings...")
-def generate_headings(topic: str) -> list[Heading]:
+def generate_headings(topic: str) -> list[Section]:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
@@ -31,10 +58,10 @@ def generate_headings(topic: str) -> list[Heading]:
     )
 
     # ! Temporary -> read from file instead of query GPT in development
-    return parse_response_to_topics(Path("gpt4_headings.txt").read_text())
+    return parse_response_to_sections(Path("gpt4_headings.txt").read_text())
 
     llm = ChatOpenAI(model=GPT4, temperature=0.6)
 
-    return parse_response_to_topics(
+    return parse_response_to_sections(
         llm(chat_template.format_messages(text=topic)).content
     )
