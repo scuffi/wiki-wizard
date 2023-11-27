@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from rich.console import Console
+from rich.markdown import Markdown
 
 from tasks import headings, writing
 
@@ -19,9 +20,10 @@ for section in sections:
         written_section = writing.write_section(
             section=section, heading=heading, title=title
         )
+        heading.content = written_section
         break
     break
 
-# print(section)
+print(heading)
 
-# console.print(Markdown(section))
+console.print(Markdown(written_section))

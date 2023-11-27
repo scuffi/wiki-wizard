@@ -35,14 +35,9 @@ def write_section(section: Section, heading: Heading, title: str):
         objective=f"'{heading.index}: {heading.title}'",
     )
 
-    print(message)
+    qa.initiate_chat(
+        researcher,
+        message=message,
+    )
 
-    # qa.initiate_chat(
-    #     researcher,
-    #     message=message,
-    # )
-
-    # return qa.chat_messages[researcher][1]["content"]
-
-
-# type exit to terminate the chat
+    return qa.chat_messages[researcher][1]["content"]

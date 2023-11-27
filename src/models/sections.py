@@ -1,12 +1,14 @@
 from dataclasses import dataclass
+from typing import Generator
 from itertools import groupby
 from nutree import Tree
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class Heading:
     index: str
     title: str
+    content: str | None = None
 
 
 @dataclass
@@ -40,7 +42,7 @@ class Section:
         ]
         return "\n".join(result)
 
-    def get_writable_headings(self):
+    def get_writable_headings(self) -> Generator[Heading, None, None]:
         """This function returns the lowest in the tree of all the headings, as they are the only that are meant to be written about."""
         return (node.data for node in self.tree if node.is_leaf())
 
