@@ -12,6 +12,9 @@ class Heading:
         None  # The content of this heading, may be None if no content generated yet
     )
 
+    def has_content(self):
+        return self.content != None
+
 
 @dataclass
 class Section:
@@ -48,6 +51,20 @@ class Section:
     def get_writable_headings(self) -> Generator[Heading, None, None]:
         """This function returns the lowest in the tree of all the headings, as they are the only that are meant to be written about."""
         return (node.data for node in self.tree if node.is_leaf())
+
+    def dump(self):
+        """Convert the given section into a string complete with content."""
+        lines = []
+        for node in self.tree:
+            heading = node.data
+            lines.append(
+                f"{'#'*heading.index.count('.')} {heading.index}: {heading.title}"
+            )
+
+            if heading.has_content():
+                lines.append(heading.content)
+
+        return "\n".join(lines)
 
 
 def group_headings(sections: list[Heading]) -> list[list[Heading]]:

@@ -4,8 +4,20 @@ load_dotenv()
 
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.progress import track
+
+from pathlib import Path
 
 from tasks import headings, writing
+
+
+def write(section, title):
+    p = Path("./generated/")
+    p.mkdir(parents=True, exist_ok=True)
+    fn = f"{title}.md"
+    filepath = p / fn
+    with filepath.open("w", encoding="utf-8") as f:
+        f.write(section.dump())
 
 
 # * Project start
@@ -21,7 +33,8 @@ for section in sections:
             section=section, heading=heading, title=title
         )
         heading.content = written_section
-        break
+
+    write(section, title)
     break
 
 print(heading)
