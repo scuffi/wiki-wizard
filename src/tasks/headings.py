@@ -11,36 +11,39 @@ from models import Section, Heading, group_headings
 from config import GPT4
 
 
-def parse_response_to_sections(response: str):
+def parse_response_to_sections(response: str) -> list[Section]:
     pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
     matches = pattern.findall(response)
 
     # Turn the text into groups of headings, called Sections
-    sections = group_headings(
+    headings = group_headings(
         [Heading(index=match[0], title=match[2].strip()) for match in matches]
     )
 
     # Create 'n' amount of Tree objects
-    trees = [Tree()] * len(sections)
+    trees = [Section(Tree()) for _ in range(len(headings))]
 
     # Iterate over everything, and add each heading to the respective tree
-    # TODO: This doesn't actually work, something wrong.
-    for i, section in enumerate(sections):
-        last_count = 0
-        last_node = None
-        for heading in section.headings:
-            dot_count = heading.index.count(".")
-            if dot_count > last_count:
+    for i, section in enumerate(headings):
+        last_index = ""
+        last_node = trees[i].tree
+
+        stack = [last_node]
+
+        for heading in section:
+            if heading.index.count(".") > last_index.count("."):
+                stack.append(last_node)
                 last_node = last_node.add(heading)
-                last_count = dot_count
+                last_index = heading.index
                 continue
 
-            last_count = dot_count
-            last_node = trees[i]
+            if heading.index.count(".") < last_index.count("."):
+                stack.pop()
 
-            last_node.add(heading)
+            last_node = stack[-1].add(heading)
+            last_index = heading.index
 
-    print(trees[0].format())
+    return trees
 
 
 @monitor("[bold green]Generating headings...")

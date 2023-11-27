@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from itertools import groupby
+from nutree import Tree
 
 
 @dataclass(frozen=True)
@@ -10,7 +11,7 @@ class Heading:
 
 @dataclass
 class Section:
-    headings: list[Heading]
+    tree: Tree
 
     def format(self) -> str:
         """Formats this section into a human-readable list.
@@ -34,16 +35,15 @@ class Section:
             str: The multiline list as a string
         """
         result = [
-            f"{'    '*heading.index.count('.')}{heading.index}: {heading.title}"
-            for heading in self.headings
+            f"{'    '*heading.data.index.count('.')}{heading.data.index}: {heading.data.title}"
+            for heading in self.tree
         ]
         return "\n".join(result)
 
     def get_writable_headings(self):
         """This function returns the lowest in the tree of all the headings, as they are the only that are meant to be written about."""
+        return (node.data for node in self.tree if node.is_leaf())
 
 
-def group_headings(sections: list[Heading]) -> list[Section]:
-    return [
-        Section(list(section)) for _, section in groupby(sections, lambda s: s.index[0])
-    ]
+def group_headings(sections: list[Heading]) -> list[list[Heading]]:
+    return [list(section) for _, section in groupby(sections, lambda s: s.index[0])]
