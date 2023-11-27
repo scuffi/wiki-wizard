@@ -6,13 +6,16 @@ from nutree import Tree
 
 @dataclass(unsafe_hash=True)
 class Heading:
-    index: str
-    title: str
-    content: str | None = None
+    index: str  # The index of this heading, e.g '3.5.1' as a string
+    title: str  # The title of this heading, e.g. '20th Century Cars'
+    content: str | None = (
+        None  # The content of this heading, may be None if no content generated yet
+    )
 
 
 @dataclass
 class Section:
+    # This is the actual tree that stores the breakdown of the different headings
     tree: Tree
 
     def format(self) -> str:
@@ -48,4 +51,15 @@ class Section:
 
 
 def group_headings(sections: list[Heading]) -> list[list[Heading]]:
+    """Create nested lists for each group of headings.
+    A group is determined by the predominant number, for example, 1, 1.2, 1.3.4, etc are all grouped together.
+
+    Note: Sections must be sorted and in increasing order when passed in.
+
+    Args:
+        sections (list[Heading]): A list of every section in order.
+
+    Returns:
+        list[list[Heading]]: A list of sublists containing ordered groups of headings.
+    """
     return [list(section) for _, section in groupby(sections, lambda s: s.index[0])]

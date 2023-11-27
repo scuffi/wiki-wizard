@@ -12,6 +12,16 @@ from config import GPT4
 
 
 def parse_response_to_sections(response: str) -> list[Section]:
+    """Convert an LLM output/response into a list of parsed Sections.
+
+    This utilises static regex & other functions so the output should be predictable based on when it was written.
+
+    Args:
+        response (str): The plaintext response.
+
+    Returns:
+        list[Section]: Aggregated and ordered Sections.
+    """
     pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
     matches = pattern.findall(response)
 
