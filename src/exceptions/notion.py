@@ -1,0 +1,6 @@
+class InvalidDatabaseException(Exception):
+    ...
+
+
+class InvalidURLException(Exception):
+    ...

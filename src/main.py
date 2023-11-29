@@ -2,11 +2,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from rich.console import Console
 
 from pathlib import Path
 
-from tasks import headings, writing
+from tasks import notion, headings, writing, parsing
 
 
 def write(section, title):
@@ -19,7 +18,11 @@ def write(section, title):
 
 
 # * Project start
-console = Console()
+database_id = notion.split_url(
+    "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
+)
+# notion.create_primary_page(database_id, title="Python", category="Programming")
+# console = Console()
 
 title = "Toothpaste"
 
@@ -31,6 +34,10 @@ for section in sections:
             section=section, heading=heading, title=title
         )
         heading.content = written_section
+        parsed = parsing.parse2notion(written_section)
+        print(parsed.valueOf())
+        print(type(parsed.valueOf()))
+        break
 
-    write(section, title)
+    # write(section, title)
     break
