@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from rich.console import Console
-from rich.markdown import Markdown
-from rich.progress import track
 
 from pathlib import Path
 
@@ -36,7 +34,3 @@ for section in sections:
 
     write(section, title)
     break
-
-print(heading)
-
-console.print(Markdown(written_section))

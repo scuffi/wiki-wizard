@@ -33,7 +33,9 @@ more-itertools==10.1.0
 multidict==6.0.4
 mypy-extensions==1.0.0
 nh3==0.2.14
+notion-client==2.1.0
 numpy==1.26.2
+nutree==0.7.1
 openai==0.28.1
 packaging==23.2
 pathlib==1.0.1
