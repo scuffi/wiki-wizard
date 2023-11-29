@@ -6,6 +6,8 @@ from rich.console import Console
 
 from pathlib import Path
 
+from tasks import headings, writing
+
 
 def write(section, title):
     p = Path("./generated/")
@@ -21,19 +23,14 @@ console = Console()
 
 title = "Toothpaste"
 
-from javascript import require
+sections = headings.generate_headings(title)
 
-martian = require("@tryfabric/martian")
+for section in sections:
+    for heading in section.get_writable_headings():
+        written_section = writing.write_section(
+            section=section, heading=heading, title=title
+        )
+        heading.content = written_section
 
-print(martian.markdownToRichText("**Hello _world_**"))
-# sections = headings.generate_headings(title)
-
-# for section in sections:
-#     for heading in section.get_writable_headings():
-#         written_section = writing.write_section(
-#             section=section, heading=heading, title=title
-#         )
-#         heading.content = written_section
-
-#     write(section, title)
-#     break
+    write(section, title)
+    break
