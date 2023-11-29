@@ -15,4 +15,4 @@ def parse2notion(markdown: str):
     Returns:
         list[any]: The parsed MD text in JSON format
     """
-    return martian.markdownToBlocks(markdown)
+    return martian.markdownToBlocks(markdown).valueOf()

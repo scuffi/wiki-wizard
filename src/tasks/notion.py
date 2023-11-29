@@ -7,11 +7,11 @@ notion = Client(auth=os.environ["NOTION_TOKEN"])
 
 def split_url(url: str):
     matches = re.search(r"\/(\w+)\?v=", url)
-    if not matches:
-        # ? Should raise exception here?
-        return None
+    return matches[1] if matches else None
 
-    return matches.group(1)
+
+def write_to_page(page_id: str, blocks: list):
+    notion.blocks.children.append(page_id, children=blocks)
 
 
 def create_primary_page(database: str, title: str, category: str):
@@ -66,7 +66,7 @@ def create_primary_page(database: str, title: str, category: str):
         #     },
         # ],
     }
-    return notion.pages.create(**payload)
+    return notion.pages.create(**payload)["id"]
 
 
 def create_subpage():
