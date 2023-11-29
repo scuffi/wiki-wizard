@@ -5,7 +5,7 @@ load_dotenv()
 
 from rich import print
 
-from tasks import notion, headings, parsing, writing
+from tasks import notion, headings, writing, icons
 
 
 # * Project start
@@ -16,7 +16,7 @@ database_id = notion.split_url(
 )
 
 primary_page = notion.create_primary_page(
-    database_id, title=title, category="Programming"
+    database_id, title=title, category="Programming", icon=icons.generate_icon(title)
 )
 
 sections = headings.generate_headings(title)
@@ -27,7 +27,7 @@ for section in sections:
 
         page = primary_page
 
-        content = parsing.parse2notion(
+        content = notion.parse_to_notion(
             f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}"
         )
 
@@ -40,9 +40,13 @@ for section in sections:
                 section=section, heading=heading, title=title
             )
             heading.content = written_section
-            parsed = parsing.parse2notion(written_section)
+            parsed = notion.parse_to_notion(written_section)
 
-            notion.create_subpage(page, heading.title, content=parsed)
+            notion.create_subpage(
+                page,
+                title=heading.title,
+                icon=icons.generate_icon(heading.title),
+                content=parsed,
+            )
 
-    # write(section, title)
     break

@@ -1,8 +1,26 @@
 import os
 import re
 from notion_client import Client
+from javascript import require
+
+# * Martian is an external JS package built to convert markdown/text into notion blocks
+# https://github.com/tryfabric/martian
+# * We have to use an awesome javascript bridge to use this package as there is no python bindings
+martian = require("@tryfabric/martian")
 
 notion = Client(auth=os.environ["NOTION_TOKEN"])
+
+
+def parse_to_notion(markdown: str):
+    """Parse a markdown text string into valid Notion Blocks/JSON API text
+
+    Args:
+        markdown (str): The markdown string
+
+    Returns:
+        list[any]: The parsed MD text in JSON format
+    """
+    return martian.markdownToBlocks(markdown).valueOf()
 
 
 def split_url(url: str):
@@ -14,7 +32,7 @@ def write_to_page(page_id: str, blocks: list):
     notion.blocks.children.append(page_id, children=blocks)
 
 
-def create_primary_page(database: str, title: str, category: str):
+def create_primary_page(database: str, title: str, category: str, icon: str):
     payload = {
         # "cover": {
         #     "type": "external",
@@ -24,7 +42,7 @@ def create_primary_page(database: str, title: str, category: str):
         # },
         "icon": {
             "type": "emoji",
-            "emoji": "🥬",
+            "emoji": icon,
         },
         "parent": {
             "type": "database_id",
@@ -69,7 +87,7 @@ def create_primary_page(database: str, title: str, category: str):
     return notion.pages.create(**payload)["id"]
 
 
-def create_subpage(primary_page: str, title: str, content: list | None):
+def create_subpage(primary_page: str, title: str, icon: str, content: list | None):
     payload = {
         # "cover": {
         #     "type": "external",
@@ -79,7 +97,7 @@ def create_subpage(primary_page: str, title: str, content: list | None):
         # },
         "icon": {
             "type": "emoji",
-            "emoji": "🥬",
+            "emoji": icon,
         },
         "parent": {
             "type": "page_id",
