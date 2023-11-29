@@ -1,0 +1,6 @@
+def print(*args, **kwargs):
+    ...
+
+
+def debug_print(*args, **kwargs):
+    ...

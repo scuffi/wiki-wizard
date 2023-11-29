@@ -21,6 +21,7 @@ httpx==0.25.1
 idna==3.4
 importlib-metadata==6.8.0
 jaraco.classes==3.3.0
+javascript==1!1.0.4
 jsonpatch==1.33
 jsonpointer==2.4
 keyring==24.3.0
