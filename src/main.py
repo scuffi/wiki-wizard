@@ -16,12 +16,15 @@ database_id = notion.split_url(
 )
 
 primary_page = notion.create_primary_page(
-    database_id, title=title, category="Programming", icon=icons.generate_icon(title)
+    database_id, title=title, category="General", icon=icons.generate_icon(title)
 )
 
 notion.write_to_page(
     primary_page,
-    [{"type": "table_of_contents", "table_of_contents": {"color": "default"}}],
+    [
+        {"type": "table_of_contents", "table_of_contents": {"color": "default"}},
+        {"type": "divider", "divider": {}},
+    ],
 )
 
 sections = headings.generate_headings(title)
@@ -29,16 +32,6 @@ sections = headings.generate_headings(title)
 for section in sections:
     for node in section.tree:
         heading = node.data
-
-        page = primary_page
-
-        content = notion.parse_to_notion(
-            f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}"
-        )
-
-        print(content)
-
-        notion.write_to_page(page, content)
 
         if node.is_leaf():
             written_section = writing.write_section(
@@ -48,10 +41,20 @@ for section in sections:
             parsed = notion.parse_to_notion(written_section)
 
             notion.create_subpage(
-                page,
+                primary_page,
                 title=heading.title,
                 icon=icons.generate_icon(heading.title),
                 content=parsed,
             )
+        else:
+            # * Only write title in case we don't create page > should this be configurable
+            content = notion.parse_to_notion(
+                # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
+                f"#{'#'*heading.index.count('.')} {heading.title}"
+            )
+
+            print(content)
+
+            notion.write_to_page(primary_page, content)
 
     break
