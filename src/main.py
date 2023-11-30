@@ -16,7 +16,7 @@ database_id = notion.split_url(
 )
 
 primary_page = notion.create_primary_page(
-    database_id, title=title, category="General", icon=icons.generate_icon(title)
+    database_id, title=title, category="Programming", icon=icons.generate_icon(title)
 )
 
 notion.write_to_page(

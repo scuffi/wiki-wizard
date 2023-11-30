@@ -3,7 +3,7 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
 
 
-from config import GPT35
+from config import EnabledModels
 
 
 def generate_icon(title: str) -> str:
@@ -18,6 +18,6 @@ def generate_icon(title: str) -> str:
         ]
     )
 
-    llm = ChatOpenAI(model=GPT35, temperature=0.9)
+    llm = ChatOpenAI(model=EnabledModels.ICONS, temperature=0.9)
 
     return llm(chat_template.format_messages(text=title)).content

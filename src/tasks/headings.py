@@ -8,7 +8,7 @@ from nutree import Tree
 
 from console import monitor
 from models import Section, Heading, group_headings
-from config import GPT35
+from config import EnabledModels
 
 
 def parse_response_to_sections(response: str) -> list[Section]:
@@ -73,7 +73,7 @@ def generate_headings(topic: str) -> list[Section]:
     # ! Temporary -> read from file instead of query GPT in development
     return parse_response_to_sections(Path("gpt4_headings.txt").read_text())
 
-    llm = ChatOpenAI(model=GPT35, temperature=0.6)
+    llm = ChatOpenAI(model=EnabledModels.HEADINGS, temperature=0.6)
 
     return parse_response_to_sections(
         llm(chat_template.format_messages(text=topic)).content
