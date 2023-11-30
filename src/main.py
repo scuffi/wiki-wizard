@@ -19,6 +19,11 @@ primary_page = notion.create_primary_page(
     database_id, title=title, category="Programming", icon=icons.generate_icon(title)
 )
 
+notion.write_to_page(
+    primary_page,
+    [{"type": "table_of_contents", "table_of_contents": {"color": "default"}}],
+)
+
 sections = headings.generate_headings(title)
 
 for section in sections:
