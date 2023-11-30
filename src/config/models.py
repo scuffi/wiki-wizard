@@ -2,7 +2,7 @@ import os
 import json
 import autogen
 
-GPT35 = "gpt-3.5-turbo"
+GPT35 = "gpt-3.5-turbo-1106"
 GPT4 = "gpt-4-1106-preview"
 
 os.environ["OAI_CONFIG_LIST"] = json.dumps(
@@ -20,8 +20,8 @@ os.environ["OAI_CONFIG_LIST"] = json.dumps(
 
 
 class EnabledModels:
-    WRITING = GPT4
-    HEADINGS = GPT4
+    WRITING = GPT35
+    HEADINGS = GPT35
     ICONS = GPT35
 
 

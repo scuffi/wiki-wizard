@@ -20,4 +20,4 @@ def generate_icon(title: str) -> str:
 
     llm = ChatOpenAI(model=EnabledModels.ICONS, temperature=0.9)
 
-    return llm(chat_template.format_messages(text=title)).content
+    return llm(chat_template.format_messages(text=title)).content[0]
