@@ -60,7 +60,7 @@ try:
 
                 notion.write_to_page(primary_page, content)
 
-        # break
+        break
     notion.update_status(primary_page, "Done")
 except Exception as ex:
     notion.update_status(primary_page, "Failed")

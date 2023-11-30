@@ -2,7 +2,7 @@ import os
 import json
 import autogen
 
-GPT35 = "gpt-3.5-turbo-1106"
+GPT35 = "gpt-3.5-turbo"
 GPT4 = "gpt-4-1106-preview"
 
 os.environ["OAI_CONFIG_LIST"] = json.dumps(

@@ -1,5 +1,6 @@
 import autogen
 
+
 from console import monitor
 from models import Heading, Section
 from config import AutoGen, GPT35, GPT4, EnabledModels
@@ -21,7 +22,7 @@ def write_section(section: Section, heading: Heading, title: str):
     )
     qa = autogen.AssistantAgent(
         name="Quality_Assurer",
-        system_message="Quality Assurer. You are a quality assurer and should critique, comment and suggest tweaks to a given set of information and return the comments to the Researcher. You should always try to find improvements in a message. You will recieve information from a research agent, and it is your job to ensure that research is up to a high standard. You should help the researcher make more enformed writing choices in your comments. You should advise the researcher on different topics to go into depth into, add examples, and anything else that could improve the quality, accuracy and depth of a given block of information. You should not write or edit the information yourself, only provide high quality and accurate comments. If the message meets the given requirements, do not add any comments or anything else to your response, only reply with ONLY the word: 'TERMINATE' in all capital letters. Do not engage in any conversation in anyt circumstance. If you have no comments, reply with 'TERMINATE' in all capitals.",
+        system_message="Quality Assurer. You are a quality assurer and should critique, comment and suggest tweaks to a given set of information and return the comments to the Researcher. You should always try to find improvements in a message. You will recieve information from a research agent, and it is your job to ensure that research is up to a high standard. You should help the researcher make more enformed writing choices in your comments. You should advise the researcher on different topics to go into depth into, add examples, and anything else that could improve the quality, accuracy and depth of a given block of information. You should not write or edit the information yourself, only provide high quality and accurate comments. If the message meets the given requirements, do not add any comments or anything else to your response, only reply with ONLY the word: 'TERMINATE' in all capital letters. Do not engage in any conversation in any circumstance. If you have no comments, reply with 'TERMINATE' in all capitals.",
         llm_config=llm_config,
     )
 
@@ -43,4 +44,4 @@ def write_section(section: Section, heading: Heading, title: str):
         message=message,
     )
 
-    return qa.chat_messages[researcher][1]["content"]
+    return qa.chat_messages[researcher][-2]["content"]
