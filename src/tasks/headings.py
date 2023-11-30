@@ -1,5 +1,4 @@
 import re
-from pathlib import Path
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
@@ -71,7 +70,7 @@ def generate_headings(topic: str) -> list[Section]:
     )
 
     # ! Temporary -> read from file instead of query GPT in development
-    return parse_response_to_sections(Path("gpt4_headings.txt").read_text())
+    # return parse_response_to_sections(Path("gpt4_headings.txt").read_text())
 
     llm = ChatOpenAI(model=EnabledModels.HEADINGS, temperature=0.6)
 

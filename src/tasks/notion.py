@@ -32,6 +32,17 @@ def write_to_page(page_id: str, blocks: list):
     notion.blocks.children.append(page_id, children=blocks)
 
 
+def update_status(page: str, status: str):
+    notion.pages.update(
+        page,
+        properties={
+            "Status": {
+                "status": {"name": status},
+            },
+        },
+    )
+
+
 def create_primary_page(database: str, title: str, category: str, icon: str):
     payload = {
         # "cover": {
@@ -54,6 +65,9 @@ def create_primary_page(database: str, title: str, category: str, icon: str):
                 "select": {
                     "name": category,
                 },
+            },
+            "Status": {
+                "status": {"name": "In progress"},
             },
         },
     }
