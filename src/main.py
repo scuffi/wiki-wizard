@@ -43,7 +43,7 @@ try:
                     section=section,
                     heading=heading,
                     title=title,
-                    method=WritingMethod.PAE,
+                    method=WritingMethod.SINGLE,
                 )
                 heading.content = written_section
                 parsed = notion.parse_to_notion(written_section)

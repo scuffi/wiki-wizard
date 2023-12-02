@@ -24,9 +24,10 @@ def plan_and_execute(section: Section, heading: Heading, title: str):
         ),
     ]
 
-    model = ChatOpenAI(temperature=0, model=EnabledModels.WRITING)
-    planner = load_chat_planner(model)
-    executor = load_agent_executor(model, tools, verbose=True)
+    llm = ChatOpenAI(temperature=0, model=EnabledModels.WRITING)
+
+    planner = load_chat_planner(llm)
+    executor = load_agent_executor(llm, tools, verbose=True)
     agent = PlanAndExecute(planner=planner, executor=executor)
 
     chat_template = ChatPromptTemplate.from_messages(
