@@ -20,7 +20,7 @@ def parse_to_notion(markdown: str):
     Returns:
         list[any]: The parsed MD text in JSON format
     """
-    return martian.markdownToBlocks(markdown).valueOf()
+    return martian.markdownToBlocks(markdown, {"nonInline": "ignore"}).valueOf()
 
 
 def split_url(url: str):

@@ -11,14 +11,14 @@ from tasks import notion, headings, writing, icons, WritingMethod
 # TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
 
 # * Project start
-title = "Anne Boleyn"
+title = "Python Programming Language"
 
 database_id = notion.split_url(
     "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
 )
 
 primary_page = notion.create_primary_page(
-    database_id, title=title, category="General", icon=icons.generate_icon(title)
+    database_id, title=title, category="Programming", icon=icons.generate_icon(title)
 )
 
 try:

@@ -20,8 +20,8 @@ os.environ["OAI_CONFIG_LIST"] = json.dumps(
 
 
 class EnabledModels:
-    WRITING = GPT35
-    HEADINGS = GPT35
+    WRITING = GPT4
+    HEADINGS = GPT4
     ICONS = GPT35
 
 
