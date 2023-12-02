@@ -1,13 +1,17 @@
 from console import monitor
 from models import Heading, Section
 
-from .writer import double_agent, single_prompt, plan_and_execute
+from .agents import double_agent
+from .flare import flare_single
+from .pae import plan_and_execute
+from .single import single_prompt
 
 
 class WritingMethod:
     DOUBLE_AGENT = double_agent
     SINGLE = single_prompt
     PAE = plan_and_execute
+    FLARE = flare_single
 
 
 @monitor("[bold green]Writing section...")

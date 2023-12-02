@@ -42,11 +42,3 @@ def double_agent(section: Section, heading: Heading, title: str):
     )
 
     return qa.chat_messages[researcher][-2]["content"]
-
-
-def single_prompt(section: Section, heading: Heading, title: str):
-    ...
-
-
-def plan_and_execute(section: Section, heading: Heading, title: str):
-    ...
