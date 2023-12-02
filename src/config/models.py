@@ -20,8 +20,18 @@ os.environ["OAI_CONFIG_LIST"] = json.dumps(
 
 
 class EnabledModels:
-    WRITING = GPT4
-    HEADINGS = GPT4
+    """A class representing enabled models.
+
+    This class defines the enabled models for different categories, such as writing, headings, and icons.
+
+    Attributes:
+        WRITING: The enabled model for writing.
+        HEADINGS: The enabled model for headings.
+        ICONS: The enabled model for icons.
+    """
+
+    WRITING = GPT35
+    HEADINGS = GPT35
     ICONS = GPT35
 
 
