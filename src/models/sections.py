@@ -13,7 +13,7 @@ class Heading:
     )
 
     def has_content(self):
-        return self.content != None
+        return self.content is not None
 
 
 @dataclass
