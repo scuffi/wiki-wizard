@@ -33,3 +33,7 @@ class AutoGen:
     CONFIG_LIST_GPT4 = autogen.config_list_from_json(
         env_or_file="OAI_CONFIG_LIST", filter_dict={"model": [GPT4]}
     )
+
+
+class Prompts:
+    ...
