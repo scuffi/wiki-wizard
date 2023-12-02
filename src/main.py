@@ -5,7 +5,7 @@ load_dotenv()
 
 from rich import print
 
-from tasks import notion, headings, writing, icons
+from tasks import notion, headings, writing, icons, WritingMethod
 
 # TODO: Migrate Agents into GPTs in OpenAI, allowing central control & configuration of each agent.
 # TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
@@ -40,7 +40,10 @@ try:
 
             if node.is_leaf():
                 written_section = writing.write_section(
-                    section=section, heading=heading, title=title
+                    section=section,
+                    heading=heading,
+                    title=title,
+                    method=WritingMethod.PAE,
                 )
                 heading.content = written_section
                 parsed = notion.parse_to_notion(written_section)
