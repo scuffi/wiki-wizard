@@ -6,6 +6,9 @@ from langchain_experimental.plan_and_execute import (
     load_agent_executor,
     load_chat_planner,
 )
+from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.schema.messages import SystemMessage
+
 from config.models import EnabledModels
 
 from models import Heading, Section
@@ -26,8 +29,18 @@ def plan_and_execute(section: Section, heading: Heading, title: str):
     executor = load_agent_executor(model, tools, verbose=True)
     agent = PlanAndExecute(planner=planner, executor=executor)
 
+    chat_template = ChatPromptTemplate.from_messages(
+        [
+            SystemMessage(
+                content=(
+                    "You are an expert researcher. You should attempt to write high quality, lengthy and informative research on a given topic. Your research should be heavily formatted using markdown. Your research should be a long, text based informational page, ensure you write in depth and maintain the quality of knowledge."
+                )
+            ),
+            HumanMessagePromptTemplate.from_template("{text}"),
+        ]
+    )
+
     message = """
-    You are an expert researcher. You should attempt to write high quality, lengthy and informative research on a given topic. Your research should be heavily formatted using markdown.
     Write an informational knowledge piece on the topic {objective}. You are writing for a larger knowledgebase with the title: '{title}'.
     Your section context is:
     `
@@ -40,4 +53,4 @@ def plan_and_execute(section: Section, heading: Heading, title: str):
         objective=f"'{heading.index}: {heading.title}'",
     )
 
-    return agent.run(message)
+    return agent.run(chat_template.format_messages(text=message))
