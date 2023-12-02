@@ -7,6 +7,8 @@ from rich import print
 
 from tasks import notion, headings, writing, icons
 
+# TODO: Migrate Agents into GPTs in OpenAI, allowing central control & configuration of each agent.
+# TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
 
 # * Project start
 title = "Anne Boleyn"
@@ -30,7 +32,7 @@ try:
 
     sections = headings.generate_headings(title)
 
-    print(sections)
+    print([section.dump() for section in sections])
 
     for section in sections:
         for node in section.tree:

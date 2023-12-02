@@ -1,7 +1,5 @@
 import autogen
 
-
-from console import monitor
 from models import Heading, Section
 from config import AutoGen, GPT35, GPT4, EnabledModels
 
@@ -12,8 +10,7 @@ llm_config = (
 )
 
 
-@monitor("[bold green]Writing section...")
-def write_section(section: Section, heading: Heading, title: str):
+def double_agent(section: Section, heading: Heading, title: str):
     # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
@@ -45,3 +42,11 @@ def write_section(section: Section, heading: Heading, title: str):
     )
 
     return qa.chat_messages[researcher][-2]["content"]
+
+
+def single_prompt(section: Section, heading: Heading, title: str):
+    ...
+
+
+def plan_and_execute(section: Section, heading: Heading, title: str):
+    ...
