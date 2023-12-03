@@ -31,7 +31,7 @@ def single_prompt(section: Section, heading: Heading, title: str):
             (
                 "system",
                 (
-                    "You are an expert researcher. You should attempt to write high quality, lengthy and informative research on a given topic. Your research should be heavily formatted using markdown. Your research should be a long, text based informational page, ensure you write in depth and maintain the quality of knowledge."
+                    "You are an expert researcher. You should attempt to write high quality, lengthy and informative research on a given topic. Your research should be heavily formatted using markdown. Your research should be a long, text based informational page, ensure you write in depth and maintain the quality of knowledge. Do not include the given title you are writing about or the index of the title."
                 ),
             ),
             ("user", "{input}"),
