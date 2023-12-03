@@ -69,9 +69,6 @@ def generate_headings(topic: str) -> list[Section]:
         ]
     )
 
-    # ! Temporary -> read from file instead of query GPT in development
-    # return parse_response_to_sections(Path("gpt4_headings.txt").read_text())
-
     llm = ChatOpenAI(model=EnabledModels.HEADINGS, temperature=0)
 
     return parse_response_to_sections(
