@@ -3,9 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-from rich import print
-
-from tasks import notion, headings, writing, icons, WritingMethod
+from tasks import notion, headings, writing, icons, WritingMethod, categoriser
 
 # TODO: Migrate Agents into GPTs in OpenAI, allowing central control & configuration of each agent.
 # TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
@@ -17,8 +15,14 @@ database_id = notion.split_url(
     "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
 )
 
+categories = notion.get_categories(database_id)
+category = categoriser.find_category(title, [cat["name"] for cat in categories])
+
+if category not in [cat["name"] for cat in categories]:
+    notion.create_category(database_id, category)
+
 primary_page = notion.create_primary_page(
-    database_id, title=title, category="Programming", icon=icons.generate_icon(title)
+    database_id, title=title, category=category, icon=icons.generate_icon(title)
 )
 
 try:
@@ -65,7 +69,6 @@ try:
 
                 notion.write_to_page(primary_page, content)
 
-        break
     notion.update_status(primary_page, "Done")
 except Exception as ex:
     notion.update_status(primary_page, "Failed")

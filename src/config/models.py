@@ -30,9 +30,10 @@ class EnabledModels:
         ICONS: The enabled model for icons.
     """
 
-    WRITING = GPT35
-    HEADINGS = GPT35
+    WRITING = GPT4
+    HEADINGS = GPT4
     ICONS = GPT35
+    CATEGORIES = GPT35
 
 
 class AutoGen:
