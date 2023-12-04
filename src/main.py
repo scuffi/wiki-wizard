@@ -8,7 +8,7 @@ from pipelines import CompletePipeline
 # TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
 
 # * Project start
-title = "Algorithmic Trading Commodities"
+title = "Making money through real estate in the UK"
 
 page_url = "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
 

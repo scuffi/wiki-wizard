@@ -65,6 +65,6 @@ def single_prompt(section: Section, heading: Heading, title: str):
         objective=f"'{heading.index}: {heading.title}'",
     )
 
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(agent=agent, tools=tools)
 
     return agent_executor.invoke({"input": message})["output"]

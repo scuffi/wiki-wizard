@@ -1,4 +1,5 @@
 from nutree import Node
+from langchain.globals import set_verbose
 
 from models import Section
 from tasks import notion, categoriser, icons, headings, writing, WritingMethod
@@ -103,9 +104,9 @@ class CompletePipeline:
                     # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
                     f"#{'#'*heading.index.count('.')} {heading.title}"
                 )
+                notion.write_to_page(page_id, content)
         except Exception:
             content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌")
-        finally:
             notion.write_to_page(page_id, content)
 
     def _iterate_sections(self, page_id: str, title: str):
@@ -156,6 +157,7 @@ class CompletePipeline:
         Args:
           title (str): The `title` parameter is a string that represents the title of a page.
         """
+        set_verbose(False)  # * Stop langchain printing every output to terminal
         category = self._get_category(title)
         page_id = self._setup_page(title, category)
         self._create_sections(page_id, title)
