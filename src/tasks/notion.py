@@ -77,7 +77,7 @@ def update_status(page: str, status: str):
     )
 
 
-def create_primary_page(database: str, title: str, category: str, icon: str):
+def create_primary_page(database: str, title: str, category: str, icon: str) -> str:
     """
     The function `create_primary_page` creates a primary page in Notion with specified properties and
     returns the ID of the created page.
