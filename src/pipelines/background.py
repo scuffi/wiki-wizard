@@ -1,7 +1,7 @@
 from tasks import notion, categoriser, icons, headings, writing, WritingMethod
 
 
-class CompletePipeline:
+class BackgroundPipeline:
     def __init__(self, notion_page_url: str) -> None:
         self._database = notion.split_url(notion_page_url)
 
