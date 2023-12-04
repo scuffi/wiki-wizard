@@ -1,3 +1,6 @@
+from nutree import Node
+
+from models import Section
 from tasks import notion, categoriser, icons, headings, writing, WritingMethod
 
 
@@ -60,6 +63,51 @@ class CompletePipeline:
 
         return page_id
 
+    def _write_heading(self, node: Node, page_id: str, section: Section, title: str):
+        """
+        The `_write_heading` function writes a heading to a Notion page, creating a subpage if the heading
+        is a leaf node.
+
+        Args:
+          node (Node): The `node` parameter is of type `Node` and represents a node in a tree structure. It
+        likely contains data related to a specific section or heading.
+          page_id (str): The `page_id` parameter is the unique identifier of the page where the content will
+        be written. It is used to specify the destination page for creating subpages or writing content.
+          section (Section): The `section` parameter is an object of the `Section` class. It represents a
+        section within a page or document.
+          title (str): The `title` parameter is a string that represents the title of the section or
+        heading.
+        """
+        try:
+            heading = node.data
+
+            if node.is_leaf():
+                written_section = writing.write_section(
+                    section=section,
+                    heading=heading,
+                    title=title,
+                    method=WritingMethod.SINGLE,
+                )
+                heading.content = written_section
+                parsed = notion.parse_to_notion(written_section)
+
+                notion.create_subpage(
+                    page_id,
+                    title=heading.title,
+                    icon=icons.generate_icon(heading.title),
+                    content=parsed,
+                )
+            else:
+                # * Only write title in case we don't create page > should this be configurable
+                content = notion.parse_to_notion(
+                    # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
+                    f"#{'#'*heading.index.count('.')} {heading.title}"
+                )
+        except Exception:
+            content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌")
+        finally:
+            notion.write_to_page(page_id, content)
+
     def _iterate_sections(self, page_id: str, title: str):
         """
         The `_iterate_sections` function iterates through sections and headings, creates subpages for leaf
@@ -75,34 +123,12 @@ class CompletePipeline:
 
         for section in sections:
             for node in section.tree:
-                heading = node.data
-
-                if node.is_leaf():
-                    written_section = writing.write_section(
-                        section=section,
-                        heading=heading,
-                        title=title,
-                        method=WritingMethod.SINGLE,
-                    )
-                    heading.content = written_section
-                    parsed = notion.parse_to_notion(written_section)
-
-                    notion.create_subpage(
-                        page_id,
-                        title=heading.title,
-                        icon=icons.generate_icon(heading.title),
-                        content=parsed,
-                    )
-                else:
-                    # * Only write title in case we don't create page > should this be configurable
-                    content = notion.parse_to_notion(
-                        # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
-                        f"#{'#'*heading.index.count('.')} {heading.title}"
-                    )
-
-                    print(content)
-
-                    notion.write_to_page(page_id, content)
+                self._write_heading(
+                    node=node,
+                    page_id=page_id,
+                    section=section,
+                    title=title,
+                )
 
         notion.update_status(page_id, "Done")
 
@@ -116,7 +142,6 @@ class CompletePipeline:
         in the Notion database. It is used to identify the page where the sections will be created.
           title (str): The `title` parameter is a string that represents the title of a page.
         """
-        # TODO: Change this into a handler per section/subheading, that way we can skip or write an error if something breaks instead of halting entire program
         try:
             self._iterate_sections(page_id, title)
         except Exception as ex:
