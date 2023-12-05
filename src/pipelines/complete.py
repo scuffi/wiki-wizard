@@ -34,8 +34,9 @@ def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
 
 
 class CompletePipeline:
-    def __init__(self, notion_page_url: str) -> None:
+    def __init__(self, notion_page_url: str, concurrency: int = 5) -> None:
         self._database = notion.split_url(notion_page_url)
+        self._concurrency = concurrency
 
     def _get_category(self, title: str) -> str:
         """
@@ -104,7 +105,7 @@ class CompletePipeline:
           title (str): The `title` parameter is a string that represents the title of the document or
         section being written.
         """
-        pool = mp.Pool(3)
+        pool = mp.Pool(self._concurrency)
 
         print(f"[bold grey]Writing sections for {title}[/bold grey]")
         for section in sections:
