@@ -7,11 +7,11 @@ from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor
 
-from models import Heading, Section
+from models import Heading
 from config import EnabledModels
 
 
-def single_prompt(section: Section, heading: Heading, title: str):
+def single_prompt(section: str, heading: Heading, title: str):
     search = DuckDuckGoSearchAPIWrapper()
     tools = [
         Tool(
@@ -61,7 +61,7 @@ def single_prompt(section: Section, heading: Heading, title: str):
     Only write about section {objective}, you can refer to other sections, but they are only for context, all information you write should align with the {objective}
     """.format(
         title=title,
-        section=section.format(),
+        section=section,
         objective=f"'{heading.index}: {heading.title}'",
     )
 

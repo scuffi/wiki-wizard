@@ -1,4 +1,3 @@
-from console import monitor
 from models import Heading, Section
 
 from .agents import double_agent
@@ -12,7 +11,7 @@ class WritingMethod:
     PAE = plan_and_execute
 
 
-@monitor("[bold green]Writing section...")
+# @monitor("[bold green]Writing section...")
 def write_section(
     section: Section,
     heading: Heading,

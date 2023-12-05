@@ -8,10 +8,11 @@ from pipelines import CompletePipeline
 # TODO: See - https://www.youtube.com/watch?v=AVInhYBUnKs&t=479s
 
 # * Project start
-title = "Making money through real estate in the UK"
+if __name__ == "__main__":
+    title = "Python Data Structures & Algorithms"
 
-page_url = "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
+    page_url = "https://www.notion.so/archief/93992d8440fa4111b06e7cc5748fac5e?v=6429bb958ce6452497c5089c15e9e6f2"
 
-pipeline = CompletePipeline(page_url)
+    pipeline = CompletePipeline(page_url)
 
-pipeline.run(title)
+    pipeline.run(title)

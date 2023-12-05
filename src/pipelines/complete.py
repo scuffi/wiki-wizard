@@ -1,8 +1,36 @@
 from nutree import Node
+import multiprocessing as mp
 from langchain.globals import set_verbose
+from rich import print
 
-from models import Section
+from models import Section, Heading
 from tasks import notion, categoriser, icons, headings, writing, WritingMethod
+
+
+def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
+    """
+    The function `write_heading_mapper` takes in four arguments: a string `section`, a `Heading` object
+    `heading`, a string `title`, and a `WritingMethod` object `method`. It prints a message indicating
+    the start of a section, calls the `write_section` function with the given arguments, prints a
+    message indicating the completion of the section, and returns the written section.
+
+    Args:
+      args (tuple[str, Heading, str, WritingMethod]): The `args` parameter is a tuple that contains four
+    elements:
+
+    Returns:
+      The function `write_heading_mapper` returns the `written_section` variable.
+    """
+    section, heading, title, method = args
+    print(f"[grey]Starting section: {heading.title}[/grey]")
+    written_section = writing.write_section(
+        section=section,
+        heading=heading,
+        title=title,
+        method=method,
+    )
+    print(":tick:", f"[green]Written section: {heading.title}[/green]")
+    return written_section
 
 
 class CompletePipeline:
@@ -64,7 +92,47 @@ class CompletePipeline:
 
         return page_id
 
-    def _write_heading(self, node: Node, page_id: str, section: Section, title: str):
+    def _generate_content(self, sections: list[Section], title: str):
+        """
+        The function `_write_leaves` iterates through a list of sections and their headings, writes the
+        content of each section using a specified writing method, and updates the content of each heading
+        with the written section.
+
+        Args:
+          sections (list[Section]): A list of Section objects. Each Section object represents a section of
+        content.
+          title (str): The `title` parameter is a string that represents the title of the document or
+        section being written.
+        """
+        pool = mp.Pool(3)
+
+        print(f"[bold grey]Writing sections for {title}[/bold grey]")
+        for section in sections:
+            results = pool.map(
+                write_heading_mapper,
+                [
+                    (
+                        section.format(),
+                        heading,
+                        title,
+                        WritingMethod.SINGLE,
+                    )
+                    for heading in section.get_writable_headings()
+                ],
+            )
+
+            for heading, result in zip(section.get_writable_headings(), results):
+                heading.content = result
+
+            break
+
+        pool.close()
+        pool.join()
+        print(
+            ":tick:", f"[bold green]Finished writing sections for {title}[/bold green]"
+        )
+
+    def _write_content_to_notion(self, node: Node, page_id: str):
         """
         The `_write_heading` function writes a heading to a Notion page, creating a subpage if the heading
         is a leaf node.
@@ -83,14 +151,7 @@ class CompletePipeline:
             heading = node.data
 
             if node.is_leaf():
-                written_section = writing.write_section(
-                    section=section,
-                    heading=heading,
-                    title=title,
-                    method=WritingMethod.SINGLE,
-                )
-                heading.content = written_section
-                parsed = notion.parse_to_notion(written_section)
+                parsed = notion.parse_to_notion(heading.content)
 
                 notion.create_subpage(
                     page_id,
@@ -105,8 +166,8 @@ class CompletePipeline:
                     f"#{'#'*heading.index.count('.')} {heading.title}"
                 )
                 notion.write_to_page(page_id, content)
-        except Exception:
-            content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌")
+        except Exception as ex:
+            content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
             notion.write_to_page(page_id, content)
 
     def _iterate_sections(self, page_id: str, title: str):
@@ -122,13 +183,13 @@ class CompletePipeline:
         """
         sections = headings.generate_headings(title)
 
+        self._generate_content(sections, title)
+
         for section in sections:
             for node in section.tree:
-                self._write_heading(
+                self._write_content_to_notion(
                     node=node,
                     page_id=page_id,
-                    section=section,
-                    title=title,
                 )
 
         notion.update_status(page_id, "Done")
@@ -157,7 +218,9 @@ class CompletePipeline:
         Args:
           title (str): The `title` parameter is a string that represents the title of a page.
         """
+        # TODO: Add a debug mode, where we print more to terminal
         set_verbose(False)  # * Stop langchain printing every output to terminal
+        print(f"Starting generation of {title}")
         category = self._get_category(title)
         page_id = self._setup_page(title, category)
         self._create_sections(page_id, title)
