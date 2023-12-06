@@ -1,4 +1,4 @@
-from models import Heading, Section
+from models import Heading, Section, ModelConfig
 
 from .agents import double_agent
 from .pae import plan_and_execute
@@ -16,8 +16,16 @@ def write_section(
     section: Section,
     heading: Heading,
     title: str,
+    model_config: ModelConfig,
     method: WritingMethod = WritingMethod.DOUBLE_AGENT,
     *args,
     **kwargs,
 ):
-    return method(section=section, heading=heading, title=title, *args, **kwargs)
+    return method(
+        section=section,
+        heading=heading,
+        title=title,
+        model_config=model_config,
+        *args,
+        **kwargs,
+    )

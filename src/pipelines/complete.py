@@ -3,12 +3,12 @@ import multiprocessing as mp
 from langchain.globals import set_verbose
 from rich import print
 
-from models import Section, Heading
-from tasks import notion, categoriser, icons, headings, writing, WritingMethod
+from models import Section, Heading, ModelConfig
+from tasks import NotionWiki, categoriser, icons, headings, writing, WritingMethod
 from .event_handler import EventHandler
 
 
-def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
+def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod, ModelConfig]):
     """
     The function `write_heading_mapper` takes in four arguments: a string `section`, a `Heading` object
     `heading`, a string `title`, and a `WritingMethod` object `method`. It prints a message indicating
@@ -22,13 +22,14 @@ def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
     Returns:
       The function `write_heading_mapper` returns the `written_section` variable.
     """
-    section, heading, title, method = args
+    section, heading, title, method, model_config = args
     print(f"[grey]Starting section: {heading.title}[/grey]")
     written_section = writing.write_section(
         section=section,
         heading=heading,
         title=title,
         method=method,
+        model_config=model_config,
     )
     print(":white_check_mark:", f"[green]Written section: {heading.title}[/green]")
     return written_section
@@ -38,12 +39,16 @@ class CompletePipeline:
     def __init__(
         self,
         notion_page_url: str,
+        notion_secret: str,
+        model_config: ModelConfig,
         concurrency: int = 5,
         event_handler: EventHandler = EventHandler(),
     ) -> None:
-        self._database = notion.split_url(notion_page_url)
+        self.notion = NotionWiki(notion_secret)
+        self._database = self.notion.split_url(notion_page_url)
         self._concurrency = concurrency
         self._handler = event_handler
+        self._model_config = model_config
 
     def _get_category(self, title: str) -> str:
         """
@@ -57,11 +62,13 @@ class CompletePipeline:
         Returns:
           a string, which is the category of the given title.
         """
-        categories = notion.get_categories(self._database)
-        category = categoriser.find_category(title, [cat["name"] for cat in categories])
+        categories = self.notion.get_categories(self._database)
+        category = categoriser.find_category(
+            title, [cat["name"] for cat in categories], model_config=self._model_config
+        )
 
         if category not in [cat["name"] for cat in categories]:
-            notion.create_category(self._database, category)
+            self.notion.create_category(self._database, category)
 
         self._handler.fire("categoryFound", category)
 
@@ -81,15 +88,15 @@ class CompletePipeline:
         Returns:
           The function `_setup_page` returns the `page_id` as a string.
         """
-        page_id = notion.create_primary_page(
+        page_id = self.notion.create_primary_page(
             self._database,
             title=title,
             category=category,
-            icon=icons.generate_icon(title),
+            icon=icons.generate_icon(title, model_config=self._model_config),
         )
 
         # Write the defaults to the page
-        notion.write_to_page(
+        self.notion.write_to_page(
             page_id,
             [
                 {
@@ -100,7 +107,7 @@ class CompletePipeline:
             ],
         )
 
-        self._handler("pageSetup", title, page_id)
+        self._handler.fire("pageSetup", title, page_id)
 
         return page_id
 
@@ -128,6 +135,7 @@ class CompletePipeline:
                         heading,
                         title,
                         WritingMethod.SINGLE,
+                        self._model_config,
                     )
                     for heading in section.get_writable_headings()
                 ],
@@ -166,9 +174,9 @@ class CompletePipeline:
             heading = node.data
 
             if node.is_leaf():
-                parsed = notion.parse_to_notion(heading.content)
+                parsed = self.notion.parse_to_notion(heading.content)
 
-                notion.create_subpage(
+                self.notion.create_subpage(
                     page_id,
                     title=heading.title,
                     icon=icons.generate_icon(heading.title),
@@ -176,17 +184,17 @@ class CompletePipeline:
                 )
             else:
                 # * Only write title in case we don't create page > should this be configurable
-                content = notion.parse_to_notion(
+                content = self.notion.parse_to_notion(
                     # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
                     f"#{'#'*heading.index.count('.')} {heading.title}"
                 )
-                notion.write_to_page(page_id, content)
+                self.notion.write_to_page(page_id, content)
 
             self._handler.fire("headingSave", heading, page_id)
             print(f"[green]Saved '{heading.index}: {heading.title}' to page.[/green]")
         except Exception as ex:
-            content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
-            notion.write_to_page(page_id, content)
+            content = self.notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
+            self.notion.write_to_page(page_id, content)
             self._handler.fire("headingFail", heading, page_id)
 
     def _iterate_sections(self, page_id: str, title: str):
@@ -200,7 +208,7 @@ class CompletePipeline:
           title (str): The `title` parameter in the `_iterate_sections` method is a string that represents
         the title of a page.
         """
-        sections = headings.generate_headings(title)
+        sections = headings.generate_headings(title, model_config=self._model_config)
 
         self._generate_content(sections, title)
 
@@ -211,7 +219,7 @@ class CompletePipeline:
                     page_id=page_id,
                 )
 
-        notion.update_status(page_id, "Done")
+        self.notion.update_status(page_id, "Done")
 
     def _create_sections(self, page_id: str, title: str):
         """
@@ -227,7 +235,7 @@ class CompletePipeline:
             self._iterate_sections(page_id, title)
         except Exception as ex:
             self._handler.fire("onFail", title, page_id)
-            notion.update_status(page_id, "Failed")
+            self.notion.update_status(page_id, "Failed")
             raise ex
 
     def run(self, title: str):

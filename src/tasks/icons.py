@@ -3,10 +3,10 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
 
 
-from config import EnabledModels
+from models import ModelConfig
 
 
-def generate_icon(title: str) -> str:
+def generate_icon(title: str, model_config: ModelConfig) -> str:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
@@ -18,6 +18,8 @@ def generate_icon(title: str) -> str:
         ]
     )
 
-    llm = ChatOpenAI(model=EnabledModels.ICONS, temperature=0.9)
+    llm = ChatOpenAI(
+        model=model_config.icons, temperature=0.9, api_key=model_config.oai_key
+    )
 
     return llm(chat_template.format_messages(text=title)).content[0]

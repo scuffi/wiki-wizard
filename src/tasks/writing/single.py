@@ -7,11 +7,12 @@ from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor
 
-from models import Heading
-from config import EnabledModels
+from models import Heading, ModelConfig
 
 
-def single_prompt(section: str, heading: Heading, title: str):
+def single_prompt(
+    section: str, heading: Heading, title: str, model_config: ModelConfig
+):
     search = DuckDuckGoSearchAPIWrapper()
     tools = [
         Tool(
@@ -21,7 +22,9 @@ def single_prompt(section: str, heading: Heading, title: str):
         ),
     ]
 
-    llm = ChatOpenAI(model=EnabledModels.WRITING, temperature=0)
+    llm = ChatOpenAI(
+        model=model_config.writing, temperature=0, api_key=model_config.oai_key
+    )
     llm_with_tools = llm.bind(
         functions=[format_tool_to_openai_function(t) for t in tools]
     )

@@ -6,8 +6,7 @@ from langchain.schema.messages import SystemMessage
 from nutree import Tree
 
 from console import monitor
-from models import Section, Heading, group_headings
-from config import EnabledModels
+from models import Section, Heading, group_headings, ModelConfig
 
 
 def parse_response_to_sections(response: str) -> list[Section]:
@@ -56,7 +55,7 @@ def parse_response_to_sections(response: str) -> list[Section]:
 
 
 @monitor("[bold green]Generating headings...")
-def generate_headings(topic: str) -> list[Section]:
+def generate_headings(topic: str, model_config: ModelConfig) -> list[Section]:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
@@ -69,7 +68,9 @@ def generate_headings(topic: str) -> list[Section]:
         ]
     )
 
-    llm = ChatOpenAI(model=EnabledModels.HEADINGS, temperature=0)
+    llm = ChatOpenAI(
+        model=model_config.headings, temperature=0, api_key=model_config.oai_key
+    )
 
     return parse_response_to_sections(
         llm(chat_template.format_messages(text=topic)).content

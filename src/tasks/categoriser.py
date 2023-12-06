@@ -3,10 +3,10 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema.messages import SystemMessage
 
 
-from config import EnabledModels
+from models import ModelConfig
 
 
-def find_category(title: str, categories: list[str]) -> str:
+def find_category(title: str, categories: list[str], model_config: ModelConfig) -> str:
     chat_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
@@ -23,7 +23,9 @@ def find_category(title: str, categories: list[str]) -> str:
         ]
     )
 
-    llm = ChatOpenAI(model=EnabledModels.CATEGORIES, temperature=0)
+    llm = ChatOpenAI(
+        model=model_config.categories, temperature=0, api_key=model_config.oai_key
+    )
 
     return llm(
         chat_template.format_messages(text=title, categories=", ".join(categories))
