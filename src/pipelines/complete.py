@@ -34,6 +34,7 @@ def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
 
 
 class CompletePipeline:
+    # TODO: Add an event handler class, with a decorator that allows tracking each function
     def __init__(self, notion_page_url: str, concurrency: int = 5) -> None:
         self._database = notion.split_url(notion_page_url)
         self._concurrency = concurrency
