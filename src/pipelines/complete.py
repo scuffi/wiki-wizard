@@ -255,3 +255,7 @@ class CompletePipeline:
         page_id = self._setup_page(title, category)
         self._create_sections(page_id, title)
         self._handler.fire("onComplete", title)
+        print(
+            ":white_check_mark:",
+            f"[bold green]Completed wiki page: '{title}'[/bold green]",
+        )
