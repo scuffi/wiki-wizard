@@ -179,7 +179,9 @@ class CompletePipeline:
                 self.notion.create_subpage(
                     page_id,
                     title=heading.title,
-                    icon=icons.generate_icon(heading.title),
+                    icon=icons.generate_icon(
+                        heading.title, model_config=self._model_config
+                    ),
                     content=parsed,
                 )
             else:

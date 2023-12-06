@@ -2,11 +2,6 @@ from dataclasses import dataclass, field
 from config import EnabledModels
 
 
-@dataclass(frozen=True)
-class Model:
-    ...
-
-
 @dataclass
 class ModelConfig:
     oai_key: str
