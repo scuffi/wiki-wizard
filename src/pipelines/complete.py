@@ -29,7 +29,7 @@ def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
         title=title,
         method=method,
     )
-    print(":tick:", f"[green]Written section: {heading.title}[/green]")
+    print(":white_check_mark:", f"[green]Written section: {heading.title}[/green]")
     return written_section
 
 
@@ -125,12 +125,11 @@ class CompletePipeline:
             for heading, result in zip(section.get_writable_headings(), results):
                 heading.content = result
 
-            break
-
         pool.close()
         pool.join()
         print(
-            ":tick:", f"[bold green]Finished writing sections for {title}[/bold green]"
+            ":white_check_mark:",
+            f"[bold green]Finished writing sections for {title}[/bold green]",
         )
 
     def _write_content_to_notion(self, node: Node, page_id: str):
@@ -167,6 +166,8 @@ class CompletePipeline:
                     f"#{'#'*heading.index.count('.')} {heading.title}"
                 )
                 notion.write_to_page(page_id, content)
+
+            print(f"[green]Saved '{heading.index}: {heading.title}' to page.[/green]")
         except Exception as ex:
             content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
             notion.write_to_page(page_id, content)
