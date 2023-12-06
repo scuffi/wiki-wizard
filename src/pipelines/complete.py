@@ -5,6 +5,7 @@ from rich import print
 
 from models import Section, Heading
 from tasks import notion, categoriser, icons, headings, writing, WritingMethod
+from .event_handler import EventHandler
 
 
 def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
@@ -34,10 +35,15 @@ def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod]):
 
 
 class CompletePipeline:
-    # TODO: Add an event handler class, with a decorator that allows tracking each function
-    def __init__(self, notion_page_url: str, concurrency: int = 5) -> None:
+    def __init__(
+        self,
+        notion_page_url: str,
+        concurrency: int = 5,
+        event_handler: EventHandler = EventHandler(),
+    ) -> None:
         self._database = notion.split_url(notion_page_url)
         self._concurrency = concurrency
+        self._handler = event_handler
 
     def _get_category(self, title: str) -> str:
         """
@@ -56,6 +62,8 @@ class CompletePipeline:
 
         if category not in [cat["name"] for cat in categories]:
             notion.create_category(self._database, category)
+
+        self._handler.fire("categoryFound", category)
 
         return category
 
@@ -92,6 +100,8 @@ class CompletePipeline:
             ],
         )
 
+        self._handler("pageSetup", title, page_id)
+
         return page_id
 
     def _generate_content(self, sections: list[Section], title: str):
@@ -125,6 +135,10 @@ class CompletePipeline:
 
             for heading, result in zip(section.get_writable_headings(), results):
                 heading.content = result
+
+            self._handler.fire("sectionGenerated", section)
+
+        self._handler.fire("sectionsGenerated", sections)
 
         pool.close()
         pool.join()
@@ -168,10 +182,12 @@ class CompletePipeline:
                 )
                 notion.write_to_page(page_id, content)
 
+            self._handler.fire("headingSave", heading, page_id)
             print(f"[green]Saved '{heading.index}: {heading.title}' to page.[/green]")
         except Exception as ex:
             content = notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
             notion.write_to_page(page_id, content)
+            self._handler.fire("headingFail", heading, page_id)
 
     def _iterate_sections(self, page_id: str, title: str):
         """
@@ -210,6 +226,7 @@ class CompletePipeline:
         try:
             self._iterate_sections(page_id, title)
         except Exception as ex:
+            self._handler.fire("onFail", title, page_id)
             notion.update_status(page_id, "Failed")
             raise ex
 
@@ -227,3 +244,4 @@ class CompletePipeline:
         category = self._get_category(title)
         page_id = self._setup_page(title, category)
         self._create_sections(page_id, title)
+        self._handler.fire("onComplete", title)
