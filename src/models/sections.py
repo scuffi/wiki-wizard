@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import Generator
 from itertools import groupby
@@ -20,6 +21,51 @@ class Heading:
 class Section:
     # This is the actual tree that stores the breakdown of the different headings
     tree: Tree
+
+    @classmethod
+    def from_string(cls, value: str) -> list["Section"]:
+        """Convert an LLM output/response into a list of parsed Sections.
+
+        This utilises static regex & other functions so the output should be predictable based on when it was written.
+
+        Args:
+            response (str): The plaintext response.
+
+        Returns:
+            list[Section]: Aggregated and ordered Sections.
+        """
+        pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
+        matches = pattern.findall(value)
+
+        # Turn the text into groups of headings, called Sections
+        headings = group_headings(
+            [Heading(index=match[0], title=match[2].strip()) for match in matches]
+        )
+
+        # Create 'n' amount of Tree objects
+        trees = [Section(Tree()) for _ in range(len(headings))]
+
+        # Iterate over everything, and add each heading to the respective tree
+        for i, section in enumerate(headings):
+            last_index = ""
+            last_node = trees[i].tree
+
+            stack = [last_node]
+
+            for heading in section:
+                if heading.index.count(".") > last_index.count("."):
+                    stack.append(last_node)
+                    last_node = last_node.add(heading)
+                    last_index = heading.index
+                    continue
+
+                if heading.index.count(".") < last_index.count("."):
+                    stack.pop()
+
+                last_node = stack[-1].add(heading)
+                last_index = heading.index
+
+        return trees
 
     def format(self) -> str:
         """Formats this section into a human-readable list.

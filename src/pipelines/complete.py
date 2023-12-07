@@ -1,11 +1,10 @@
-from nutree import Node, Tree
-import re
+from nutree import Node
 import multiprocessing as mp
 from langchain.globals import set_verbose
 from rich import print
 
 from config import Prompts
-from models import Section, Heading, ModelConfig, Model, group_headings
+from models import Section, Heading, ModelConfig, Model
 from tasks import NotionWiki, writing, WritingMethod, generate
 from .event_handler import EventHandler
 
@@ -221,52 +220,6 @@ class CompletePipeline:
             self.notion.write_to_page(page_id, content)
             self._handler.fire("headingFail", heading, page_id)
 
-    def _parse_response_to_sections(
-        self, response: str
-    ) -> list[Section]:  # TODO: This should probably move somewhere else
-        """Convert an LLM output/response into a list of parsed Sections.
-
-        This utilises static regex & other functions so the output should be predictable based on when it was written.
-
-        Args:
-            response (str): The plaintext response.
-
-        Returns:
-            list[Section]: Aggregated and ordered Sections.
-        """
-        pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
-        matches = pattern.findall(response)
-
-        # Turn the text into groups of headings, called Sections
-        headings = group_headings(
-            [Heading(index=match[0], title=match[2].strip()) for match in matches]
-        )
-
-        # Create 'n' amount of Tree objects
-        trees = [Section(Tree()) for _ in range(len(headings))]
-
-        # Iterate over everything, and add each heading to the respective tree
-        for i, section in enumerate(headings):
-            last_index = ""
-            last_node = trees[i].tree
-
-            stack = [last_node]
-
-            for heading in section:
-                if heading.index.count(".") > last_index.count("."):
-                    stack.append(last_node)
-                    last_node = last_node.add(heading)
-                    last_index = heading.index
-                    continue
-
-                if heading.index.count(".") < last_index.count("."):
-                    stack.pop()
-
-                last_node = stack[-1].add(heading)
-                last_index = heading.index
-
-        return trees
-
     def _iterate_sections(self, page_id: str, title: str):
         """
         The `_iterate_sections` function iterates through sections and headings, creates subpages for leaf
@@ -278,7 +231,7 @@ class CompletePipeline:
           title (str): The `title` parameter in the `_iterate_sections` method is a string that represents
         the title of a page.
         """
-        sections = self._parse_response_to_sections(
+        sections = Section.from_string(
             generate.prompt(
                 prompt=title,
                 system_message=Prompts.heading_prompt,
