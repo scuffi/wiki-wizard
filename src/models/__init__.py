@@ -1,2 +1,2 @@
 from .sections import Section, Heading, group_headings
-from .model import ModelConfig
+from .model import ModelConfig, Model

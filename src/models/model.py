@@ -3,6 +3,13 @@ from config import EnabledModels
 
 
 @dataclass
+class Model:
+    key: str
+    model: str
+    temperature: float = field(default=0)
+
+
+@dataclass
 class ModelConfig:
     oai_key: str
     writing: str = field(default=EnabledModels.WRITING)

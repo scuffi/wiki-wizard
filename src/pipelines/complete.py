@@ -1,10 +1,12 @@
-from nutree import Node
+from nutree import Node, Tree
+import re
 import multiprocessing as mp
 from langchain.globals import set_verbose
 from rich import print
 
-from models import Section, Heading, ModelConfig
-from tasks import NotionWiki, categoriser, icons, headings, writing, WritingMethod
+from config import Prompts
+from models import Section, Heading, ModelConfig, Model, group_headings
+from tasks import NotionWiki, writing, WritingMethod, generate
 from .event_handler import EventHandler
 
 
@@ -63,8 +65,14 @@ class CompletePipeline:
           a string, which is the category of the given title.
         """
         categories = self.notion.get_categories(self._database)
-        category = categoriser.find_category(
-            title, [cat["name"] for cat in categories], model_config=self._model_config
+        category = generate.prompt(
+            prompt=title,
+            system_message=Prompts.categoriser_prompt,
+            model=Model(
+                key=self._model_config.oai_key,
+                model=self._model_config.categories,
+            ),
+            categories=", ".join([cat["name"] for cat in categories]),
         )
 
         if category not in [cat["name"] for cat in categories]:
@@ -92,7 +100,15 @@ class CompletePipeline:
             self._database,
             title=title,
             category=category,
-            icon=icons.generate_icon(title, model_config=self._model_config),
+            icon=generate.prompt(
+                prompt=title,
+                system_message=Prompts.icons_prompt,
+                model=Model(
+                    key=self._model_config.oai_key,
+                    model=self._model_config.icons,
+                    temperature=0.9,
+                ),
+            ),
         )
 
         # Write the defaults to the page
@@ -179,8 +195,14 @@ class CompletePipeline:
                 self.notion.create_subpage(
                     page_id,
                     title=heading.title,
-                    icon=icons.generate_icon(
-                        heading.title, model_config=self._model_config
+                    icon=generate.prompt(
+                        prompt=heading.title,
+                        system_message=Prompts.icons_prompt,
+                        model=Model(
+                            key=self._model_config.oai_key,
+                            model=self._model_config.icons,
+                            temperature=0.9,
+                        ),
                     ),
                     content=parsed,
                 )
@@ -199,6 +221,52 @@ class CompletePipeline:
             self.notion.write_to_page(page_id, content)
             self._handler.fire("headingFail", heading, page_id)
 
+    def _parse_response_to_sections(
+        self, response: str
+    ) -> list[Section]:  # TODO: This should probably move somewhere else
+        """Convert an LLM output/response into a list of parsed Sections.
+
+        This utilises static regex & other functions so the output should be predictable based on when it was written.
+
+        Args:
+            response (str): The plaintext response.
+
+        Returns:
+            list[Section]: Aggregated and ordered Sections.
+        """
+        pattern = re.compile(r"(\d+(\.\d+)*)\s*:\s*(.*)")
+        matches = pattern.findall(response)
+
+        # Turn the text into groups of headings, called Sections
+        headings = group_headings(
+            [Heading(index=match[0], title=match[2].strip()) for match in matches]
+        )
+
+        # Create 'n' amount of Tree objects
+        trees = [Section(Tree()) for _ in range(len(headings))]
+
+        # Iterate over everything, and add each heading to the respective tree
+        for i, section in enumerate(headings):
+            last_index = ""
+            last_node = trees[i].tree
+
+            stack = [last_node]
+
+            for heading in section:
+                if heading.index.count(".") > last_index.count("."):
+                    stack.append(last_node)
+                    last_node = last_node.add(heading)
+                    last_index = heading.index
+                    continue
+
+                if heading.index.count(".") < last_index.count("."):
+                    stack.pop()
+
+                last_node = stack[-1].add(heading)
+                last_index = heading.index
+
+        return trees
+
     def _iterate_sections(self, page_id: str, title: str):
         """
         The `_iterate_sections` function iterates through sections and headings, creates subpages for leaf
@@ -210,7 +278,16 @@ class CompletePipeline:
           title (str): The `title` parameter in the `_iterate_sections` method is a string that represents
         the title of a page.
         """
-        sections = headings.generate_headings(title, model_config=self._model_config)
+        sections = self._parse_response_to_sections(
+            generate.prompt(
+                prompt=title,
+                system_message=Prompts.heading_prompt,
+                model=Model(
+                    key=self._model_config.oai_key,
+                    model=self._model_config.headings,
+                ),
+            )
+        )
 
         self._generate_content(sections, title)
 
