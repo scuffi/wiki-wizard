@@ -11,7 +11,6 @@ llm_config = (
 
 
 def double_agent(section: Section, heading: Heading, title: str):
-    # TODO: Fix all the system messages here, incorporate scoring system to ensure outputs don't get worse, make use of all 128k context size.
     researcher = autogen.AssistantAgent(
         name="Researcher",
         system_message="Research Assistant. Your only goal is to provide high quality, detailed information on the topic given to you structured in markdown. If you are given improvements, you must use those comments to improve your previous response, do not write a new answer, it must be the previous answer incorporating the changes. You must ensure that you understand the topic and create a detailed and informative set of research on the topic. You should always reply with long, detailed research. Your research should always be structured using markdown. If you are prompted with improvements, use those improvements to improve your last set of research. Do not include the title you are writing for anywhere in your response. Do not engage in any conversation in anyt circumstance.",

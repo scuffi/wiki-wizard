@@ -40,7 +40,6 @@ def generate_page(
         ),
     )
 
-    # TODO: This should be done in the background
     background_tasks.add_task(pipeline.run, body.title)
     return {"message": "Wiki generation added to background task"}
 
