@@ -4,36 +4,9 @@ from langchain.globals import set_verbose
 from rich import print
 
 from config import Prompts
-from models import Section, Heading, ModelConfig, Model
+from models import Section, ModelConfig, Model
 from tasks import NotionWiki, writing, WritingMethod, generate
 from .event_handler import EventHandler
-
-
-def write_heading_mapper(args: tuple[str, Heading, str, WritingMethod, ModelConfig]):
-    """
-    The function `write_heading_mapper` takes in four arguments: a string `section`, a `Heading` object
-    `heading`, a string `title`, and a `WritingMethod` object `method`. It prints a message indicating
-    the start of a section, calls the `write_section` function with the given arguments, prints a
-    message indicating the completion of the section, and returns the written section.
-
-    Args:
-      args (tuple[str, Heading, str, WritingMethod]): The `args` parameter is a tuple that contains four
-    elements:
-
-    Returns:
-      The function `write_heading_mapper` returns the `written_section` variable.
-    """
-    section, heading, title, method, model_config = args
-    print(f"[grey]Starting section: {heading.title}[/grey]")
-    written_section = writing.write_section(
-        section=section,
-        heading=heading,
-        title=title,
-        method=method,
-        model_config=model_config,
-    )
-    print(":white_check_mark:", f"[green]Written section: {heading.title}[/green]")
-    return written_section
 
 
 class CompletePipeline:
@@ -143,7 +116,7 @@ class CompletePipeline:
         print(f"[bold grey]Writing sections for {title}[/bold grey]")
         for section in sections:
             results = pool.map(
-                write_heading_mapper,
+                writing.write_section_mp,
                 [
                     (
                         section.format(),
