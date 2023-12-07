@@ -3,3 +3,4 @@ Todo:
   ☐ Modularise functionality -> allow for total configuration for easier testing, e.g. passing what functions get called in what areas
   - Improve CompletePipeline, feels very messy atm, make it cleaner and more understandable
   - Make functionality less specific, all functions are too coupled atm
+  - Change ugly print statements

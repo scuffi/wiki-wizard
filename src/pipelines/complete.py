@@ -111,7 +111,7 @@ class CompletePipeline:
         )
 
         # Write the defaults to the page
-        self.notion.write_to_page(
+        self.notion.write(
             page_id,
             [
                 {
@@ -189,7 +189,7 @@ class CompletePipeline:
             heading = node.data
 
             if node.is_leaf():
-                parsed = self.notion.parse_to_notion(heading.content)
+                parsed = self.notion.md_to_blocks(heading.content)
 
                 self.notion.create_subpage(
                     page_id,
@@ -207,17 +207,17 @@ class CompletePipeline:
                 )
             else:
                 # * Only write title in case we don't create page > should this be configurable
-                content = self.notion.parse_to_notion(
+                content = self.notion.md_to_blocks(
                     # f"#{'#'*heading.index.count('.')} {heading.index} - {heading.title}" # ? MAke this configurable option
                     f"#{'#'*heading.index.count('.')} {heading.title}"
                 )
-                self.notion.write_to_page(page_id, content)
+                self.notion.write(page_id, content)
 
             self._handler.fire("headingSave", heading, page_id)
             print(f"[green]Saved '{heading.index}: {heading.title}' to page.[/green]")
         except Exception as ex:
-            content = self.notion.parse_to_notion(f"❌ ERROR: {heading.title} ❌ - {ex}")
-            self.notion.write_to_page(page_id, content)
+            content = self.notion.md_to_blocks(f"❌ ERROR: {heading.title} ❌ - {ex}")
+            self.notion.write(page_id, content)
             self._handler.fire("headingFail", heading, page_id)
 
     def _iterate_sections(self, page_id: str, title: str):

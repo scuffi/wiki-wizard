@@ -15,7 +15,7 @@ class NotionWiki:
     def __init__(self, api_secret: str) -> None:
         self.notion = Client(auth=api_secret)
 
-    def parse_to_notion(self, markdown: str):
+    def md_to_blocks(self, markdown: str):
         """Parse a markdown text string into valid Notion Blocks/JSON API text
 
         Args:
@@ -44,7 +44,7 @@ class NotionWiki:
         matches = re.search(r"\/(\w+)\?v=", url)
         return matches[1] if matches else None
 
-    def write_to_page(self, page_id: str, blocks: list):
+    def write(self, page_id: str, blocks: list):
         """
         The function `write_to_page` appends a list of blocks to a Notion page with a given page ID.
 
@@ -187,7 +187,7 @@ class NotionWiki:
                 "Could not access Category properties, ensure the Notion page is correct schema."
             ) from e
 
-    def _random_notion_colour(self):
+    def _random_colour(self):
         """
         The function `_random_notion_colour` returns a random color from a predefined list.
 
@@ -232,8 +232,8 @@ class NotionWiki:
                     "type": "select",
                     "select": {
                         "options": [
-                            *existing_categories,  # We need to pass the existing categories, as this request would wipe them without them
-                            {"name": category, "color": self._random_notion_colour()},
+                            *existing_categories,  # ? We need to pass the existing categories, as this request would wipe them without them
+                            {"name": category, "color": self._random_colour()},
                         ],
                     },
                 },
