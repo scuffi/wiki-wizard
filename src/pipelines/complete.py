@@ -113,7 +113,7 @@ class CompletePipeline:
         """
         pool = mp.Pool(self._concurrency)
 
-        print(f"[bold grey]Writing sections for {title}[/bold grey]")
+        print(f"[bold grey]Writing sections for [bold green]{title}[/bold green][/bold grey]")
         for section in sections:
             results = pool.map(
                 writing.write_section_mp,
@@ -140,7 +140,7 @@ class CompletePipeline:
         pool.join()
         print(
             ":white_check_mark:",
-            f"[bold green]Finished writing sections for {title}[/bold green]",
+            f"[bold green]Finished writing sections for [bold green]{title}[/bold green][/bold green]",
         )
 
     def _write_content_to_notion(self, node: Node, page_id: str):

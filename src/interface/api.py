@@ -41,7 +41,7 @@ def generate_page(
     )
 
     background_tasks.add_task(pipeline.run, body.title)
-    return {"message": "Wiki generation added to background task"}
+    return {"message": f"'{body.title}' added to generation queue"}
 
 
 @app.get("/status/{id}")
