@@ -113,7 +113,9 @@ class CompletePipeline:
         """
         pool = mp.Pool(self._concurrency)
 
-        print(f"[bold grey]Writing sections for [bold green]{title}[/bold green][/bold grey]")
+        print(
+            f"[bold grey]Writing sections for [bold green]{title}[/bold green][/bold grey]"
+        )
         for section in sections:
             results = pool.map(
                 writing.write_section_mp,
@@ -190,7 +192,10 @@ class CompletePipeline:
             print(f"[green]Saved '{heading.index}: {heading.title}' to page.[/green]")
         except Exception as ex:
             content = self.notion.md_to_blocks(f"❌ ERROR: {heading.title} ❌ - {ex}")
-            self.notion.write(page_id, content)
+            try:
+                self.notion.write(page_id, content)
+            except Exception:
+                self._write_content_to_notion(node, page_id)
             self._handler.fire("headingFail", heading, page_id)
 
     def _iterate_sections(self, page_id: str, title: str):
