@@ -1,10 +1,13 @@
 from typing import Annotated
+from uuid import uuid4
 from dataclasses import dataclass, field
 
 from fastapi import FastAPI, Header, BackgroundTasks
+from fastapi.responses import JSONResponse
 
-from pipelines import CompletePipeline
+from pipelines import CompletePipeline, StatusEventHandler
 from config import EnabledModels
+from config.redis import redis_client
 from models import ModelConfig
 
 app = FastAPI(title="WikiWizard API")
@@ -27,6 +30,8 @@ def generate_page(
     body: GenerateBody,
     background_tasks: BackgroundTasks,
 ):
+    task_id = uuid4().hex
+    
     pipeline = CompletePipeline(
         page_url,
         notion_secret=notion_secret,
@@ -37,12 +42,23 @@ def generate_page(
             icons=body.icons,
             categories=body.categories,
         ),
+        event_handler=StatusEventHandler(task_id), # Allow for decoupled Redis status updating
     )
 
     background_tasks.add_task(pipeline.run, body.title)
-    return {"message": f"'{body.title}' added to generation queue"}
+    
+    return {"message": f"'{body.title}' added to generation queue", "id": task_id}
 
 
 @app.get("/status/{id}")
 def status(id: str):
-    ...
+    if not redis_client.exists(id):
+        return JSONResponse(status_code=404, content={"message": "Process not found"})
+    
+    return JSONResponse(status_code=200, content={"message": redis_client.get(id)})
+
+@app.get("/status")
+def status_list():
+    keys = redis_client.keys()
+    return [{"id": key, "status": value} for key, value in zip(keys, redis_client.mget(keys))]
+

@@ -6,7 +6,7 @@ from rich import print
 from config import Prompts
 from models import Section, ModelConfig, Model
 from tasks import NotionWiki, writing, WritingMethod, generate
-from .event_handler import EventHandler
+from .event.event_handler import EventHandler
 
 
 class CompletePipeline:
@@ -219,15 +219,19 @@ class CompletePipeline:
                 ),
             )
         )
+        
+        self._handler.fire("sectionsGenerated", sections)
 
         self._generate_content(sections, title)
 
-        for section in sections:
+        for index, section in enumerate(sections):
             for node in section.tree:
                 self._write_content_to_notion(
                     node=node,
                     page_id=page_id,
                 )
+                
+                self._handler.fire("sectionWritten", section=section, index=index, sections=sections)
 
         self.notion.update_status(page_id, "Done")
 
@@ -259,6 +263,9 @@ class CompletePipeline:
         # TODO: Add a debug mode, where we print more to terminal
         set_verbose(False)  # * Stop langchain printing every output to terminal
         print(f"Starting generation of {title}")
+        
+        self._handler.fire("onStart", title)
+        
         category = self._get_category(title)
         page_id = self._setup_page(title, category)
         self._create_sections(page_id, title)

@@ -10,5 +10,6 @@ class EventHandler:
         self._registry[event].append(callback)
 
     def fire(self, event: str, *args, **kwargs):
-        for callback in self._registry[event]:
+        for callback in self._registry.get(event, []):
             callback(*args, **kwargs)
+
