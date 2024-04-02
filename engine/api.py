@@ -2,7 +2,6 @@ from typing import Annotated
 from dataclasses import dataclass, field
 
 from fastapi import FastAPI, Header, BackgroundTasks
-import uvicorn
 
 from pipelines import CompletePipeline
 from config import EnabledModels
@@ -47,7 +46,3 @@ def generate_page(
 @app.get("/status/{id}")
 def status(id: str):
     ...
-
-
-def start_api():
-    uvicorn.run("interface.api:app", reload=True)
