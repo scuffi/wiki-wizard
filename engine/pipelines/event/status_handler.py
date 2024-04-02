@@ -1,6 +1,8 @@
+from datetime import timedelta
+
 from .event_handler import EventHandler
 
-from config.redis import update_status, Status
+from config.redis import update_status, Status, redis_client
 from models import Section
 
 class StatusEventHandler(EventHandler):
@@ -21,6 +23,7 @@ class StatusEventHandler(EventHandler):
     
     def on_start(self, title: str):
         update_status(self.task_id, Status.PAGE_SETUP)
+        redis_client.expire(self.task_id, timedelta(days=3), nx=True)
         
     def on_page_setup(self, title: str, page_id: str):
         update_status(self.task_id, Status.GENERATING_SECTIONS)
