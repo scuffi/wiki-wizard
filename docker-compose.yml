@@ -10,7 +10,7 @@ services:
     env_file:
       - stack.env
     volumes:
-      - "./engine:/app"
+      - "engine:/app"
 
   interface:
     build:
@@ -21,7 +21,7 @@ services:
     env_file:
       - stack.env
     volumes:
-      - "./interface:/app"
+      - "interface:/app"
 
   redis:
     image: redis:alpine
@@ -31,3 +31,5 @@ services:
 
 volumes:
   redis-data:
+  engine:
+  interface:
