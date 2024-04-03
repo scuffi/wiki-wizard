@@ -52,4 +52,4 @@ with st.container(border=True):
         with st.container(border=True):
             st.markdown(f"**{redis_client.hget(key, 'title')}**")
             st.markdown(redis_client.hget(key, "status"))
-            st.button("🗑️", on_click=redis_client.delete, args=(key,))
+            st.button("🗑️", on_click=redis_client.delete, args=(key,), key=f"delete_{key}_button")
