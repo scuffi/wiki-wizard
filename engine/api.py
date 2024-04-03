@@ -1,6 +1,7 @@
 from typing import Annotated
 from uuid import uuid4
 from dataclasses import dataclass, field
+from rich import print
 
 from fastapi import FastAPI, Header, BackgroundTasks
 from fastapi.responses import JSONResponse
@@ -10,7 +11,13 @@ from config import EnabledModels
 from config.redis import redis_client
 from models import ModelConfig
 
+__version__ = "0.0.2"
+
 app = FastAPI(title="WikiWizard API")
+
+@app.on_event("startup")
+def on_startup():
+    print(f"Running version [bold green]{__version__}[/bold green]")
 
 
 @dataclass
