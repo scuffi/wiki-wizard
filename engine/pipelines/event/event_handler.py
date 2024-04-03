@@ -1,6 +1,8 @@
 from collections import defaultdict
 from typing import Callable
 
+from rich import print
+
 
 class EventHandler:
     def __init__(self) -> None:
@@ -11,5 +13,8 @@ class EventHandler:
 
     def fire(self, event: str, *args, **kwargs):
         for callback in self._registry.get(event, []):
-            callback(*args, **kwargs)
+            try:
+                callback(*args, **kwargs)
+            except Exception as ex:
+                print(f"[red]Error when firing event '{event}': {ex}[/red]")
 
