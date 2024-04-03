@@ -15,4 +15,4 @@ class Status(Enum):
     FAILED = "failed"
 
 def update_status(page_id: str, status: Status):
-    redis_client.hset(f"generation:{page_id}", "status", status.value)
+    redis_client.hset(f"generation:{page_id}", "status", status.value if isinstance(status, Status) else status)
