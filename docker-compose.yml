@@ -12,7 +12,22 @@ services:
     volumes:
       - "./engine:/app"
 
+  interface:
+    build:
+      context: ./
+      dockerfile: ./interface/Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    volumes:
+      - "./interface:/app"
+
   redis:
     image: redis:alpine
-    # ports:
-    #   - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis-data:

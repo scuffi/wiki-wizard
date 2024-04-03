@@ -23,7 +23,12 @@ class StatusEventHandler(EventHandler):
     
     def on_start(self, title: str):
         update_status(self.task_id, Status.PAGE_SETUP)
-        redis_client.expire(self.task_id, timedelta(days=3), nx=True)
+        
+        # Add the title to the redis cache
+        redis_client.hset(f"generation:{self.task_id}", "title", title)
+        
+        # Set the value to expire in 3 days
+        redis_client.expire(f"generation:{self.task_id}", timedelta(days=3), nx=True)
         
     def on_page_setup(self, title: str, page_id: str):
         update_status(self.task_id, Status.GENERATING_SECTIONS)

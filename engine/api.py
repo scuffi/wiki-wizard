@@ -59,6 +59,7 @@ def status(id: str):
 
 @app.get("/status")
 def status_list():
-    keys = redis_client.keys()
-    return [{"id": key, "status": value} for key, value in zip(keys, redis_client.mget(keys))]
+    keys = redis_client.keys(pattern="generation:*")
+    statuses = [redis_client.hget(key, "status") for key in keys]
+    return [{"id": key, "status": value} for key, value in zip(keys, statuses)]
 
