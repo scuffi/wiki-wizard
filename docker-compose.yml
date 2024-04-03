@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: ./engine/Dockerfile
     ports:
-      - "8000:8000"
+      - "8200:8000"
     env_file:
       - stack.env
     volumes:
@@ -17,7 +17,7 @@ services:
       context: ./
       dockerfile: ./interface/Dockerfile
     ports:
-      - "8001:8001"
+      - "8201:8001"
     env_file:
       - stack.env
     volumes:
