@@ -15,6 +15,8 @@ __version__ = "0.0.2"
 
 app = FastAPI(title="WikiWizard API")
 
+print(f"Starting up... (version: {__version__})")
+
 @app.on_event("startup")
 def on_startup():
     print(f"Running version [bold green]{__version__}[/bold green]")
