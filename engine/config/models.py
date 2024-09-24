@@ -5,14 +5,17 @@ import autogen
 GPT35 = "gpt-3.5-turbo"
 GPT4 = "gpt-4-1106-preview"
 
+GPT4o = "gpt-4o"
+GPT4oMini = "gpt-4o-mini"
+
 os.environ["OAI_CONFIG_LIST"] = json.dumps(
     [
         {
-            "model": GPT35,
+            "model": GPT4o,
             "api_key": os.environ["OPENAI_API_KEY"],
         },
         {
-            "model": GPT4,
+            "model": GPT4oMini,
             "api_key": os.environ["OPENAI_API_KEY"],
         },
     ]
@@ -30,10 +33,10 @@ class EnabledModels:
         ICONS: The enabled model for icons.
     """
 
-    WRITING = GPT4
-    HEADINGS = GPT4
-    ICONS = GPT35
-    CATEGORIES = GPT35
+    WRITING = GPT4o
+    HEADINGS = GPT4o
+    ICONS = GPT4oMini
+    CATEGORIES = GPT4oMini
 
 
 class AutoGen:
